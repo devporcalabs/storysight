@@ -1,0 +1,1209 @@
+STORYSIGHT V1
+DETAIL SISTEM LENGKAP
+Format: TXT
+
+============================================================
+1. KONSEP UTAMA SISTEM
+============================================================
+
+StorySight V1 adalah platform website pembelajaran bahasa Inggris melalui media cerita.
+
+Fokus utama V1:
+- User membaca cerita melalui PDF
+- User menonton cerita melalui video
+- User mengerjakan quiz setelah membaca/menonton
+- Admin mengelola story, PDF, video, dan quiz
+- Sistem menyimpan progress dan score user
+
+Tagline konsep:
+“Learn English Through Stories”
+
+StorySight V1 dibuat sebagai MVP yang sederhana, cepat dikembangkan, namun tetap scalable untuk fitur AI dan interaktif di versi berikutnya.
+
+============================================================
+2. ROLE PENGGUNA
+============================================================
+
+A. Guest
+Guest adalah pengunjung yang belum login.
+
+Akses:
+- Melihat landing page
+- Melihat preview story terbatas
+- Login atau register untuk mengakses konten penuh
+
+B. User / Student
+User adalah pengguna utama platform.
+
+Akses:
+- Login dan register
+- Melihat daftar story
+- Membaca PDF story
+- Menonton video story
+- Mengerjakan quiz
+- Melihat score quiz
+- Melihat progress belajar
+
+C. Admin
+Admin adalah pengelola konten StorySight.
+
+Akses:
+- Login admin
+- Membuat story
+- Upload PDF
+- Upload video
+- Membuat quiz
+- Publish/unpublish story
+- Melihat data user
+- Melihat progress dan score user
+
+============================================================
+3. ARSITEKTUR SISTEM
+============================================================
+
+Sistem StorySight V1 terdiri dari:
+
+1. Frontend Website
+2. Backend API
+3. Database
+4. File Storage
+5. Authentication System
+
+Arsitektur sederhana:
+
+Frontend Website
+       ↓
+Backend API
+       ↓
+Database PostgreSQL
+       ↓
+Storage PDF + Video
+
+============================================================
+4. FLOW UTAMA USER
+============================================================
+
+Alur user:
+
+User Login
+→ Pilih Story
+→ Baca PDF
+→ Tonton Video
+→ Kerjakan Quiz
+→ Dapat Score
+→ Progress Tersimpan
+
+Detail flow:
+
+1. User membuka website StorySight
+2. User login/register
+3. User masuk ke dashboard
+4. User memilih story berdasarkan level atau genre
+5. User membaca PDF story
+6. User menonton video story
+7. User mengerjakan quiz
+8. Sistem menghitung score
+9. Sistem menyimpan hasil dan progress
+10. User dapat melanjutkan ke story berikutnya
+
+============================================================
+5. FLOW UTAMA ADMIN
+============================================================
+
+Alur admin:
+
+Admin Login
+→ Upload Story
+→ Upload PDF
+→ Upload Video
+→ Buat Quiz
+→ Publish Story
+→ User Bisa Akses
+
+Detail flow:
+
+1. Admin login ke dashboard admin
+2. Admin membuat story baru
+3. Admin mengisi judul, deskripsi, level, genre, dan durasi
+4. Admin upload thumbnail
+5. Admin upload PDF
+6. Admin upload video atau input video URL
+7. Admin membuat quiz
+8. Admin preview story
+9. Admin publish story
+10. Story tampil di halaman user
+
+============================================================
+6. FRONTEND SYSTEM
+============================================================
+
+Frontend adalah tampilan website yang digunakan oleh user dan admin.
+
+Frontend menangani:
+- Tampilan landing page
+- Login/register UI
+- Story list
+- Story detail
+- PDF reader
+- Video player
+- Quiz UI
+- Result page
+- User dashboard
+- Admin dashboard
+
+Halaman frontend user:
+
+/
+Landing page.
+
+Isi:
+- Hero section
+- Penjelasan StorySight
+- CTA Start Learning
+- Story preview
+- Login/register button
+
+/login
+Halaman login user dan admin.
+
+/register
+Halaman registrasi user.
+
+/stories
+Halaman daftar story.
+
+Fitur:
+- List story
+- Filter level
+- Filter genre
+- Search story
+- Story card
+
+/stories/[slug]
+Halaman detail story.
+
+Isi:
+- Thumbnail story
+- Title
+- Description
+- Level
+- Genre
+- Duration
+- Button Read PDF
+- Button Watch Video
+- Button Take Quiz
+
+/stories/[slug]/read
+Halaman PDF reader.
+
+/stories/[slug]/watch
+Halaman video player.
+
+/stories/[slug]/quiz
+Halaman quiz.
+
+/stories/[slug]/result
+Halaman hasil quiz.
+
+/dashboard
+Dashboard user.
+
+Isi:
+- Progress belajar
+- Story yang sudah selesai
+- Score quiz
+- Continue learning
+
+============================================================
+7. BACKEND SYSTEM
+============================================================
+
+Backend adalah pusat logika sistem.
+
+Backend menangani:
+- Authentication
+- Authorization
+- Story management
+- File upload
+- Quiz management
+- Scoring
+- Progress tracking
+- Admin management
+- Database connection
+
+Module backend:
+
+A. Auth Module
+Mengatur:
+- Register
+- Login
+- Logout
+- Session/token
+- Role user/admin
+
+B. Story Module
+Mengatur:
+- Create story
+- Edit story
+- Delete story
+- Publish/unpublish story
+- Get story list
+- Get story detail
+
+C. File Storage Module
+Mengatur:
+- Upload PDF
+- Upload video
+- Upload thumbnail
+- Generate file URL
+- Delete file
+
+D. Quiz Module
+Mengatur:
+- Create quiz
+- Create question
+- Edit question
+- Delete question
+- Submit answer
+- Calculate score
+
+E. Progress Module
+Mengatur:
+- Mark PDF as read
+- Mark video as watched
+- Mark quiz as completed
+- Save learning progress
+
+F. Admin Module
+Mengatur:
+- Admin dashboard
+- Content management
+- User management
+- Basic analytics
+
+============================================================
+8. SISTEM STORY
+============================================================
+
+Story adalah konten utama di StorySight.
+
+Setiap story memiliki data:
+
+- Title
+- Slug
+- Description
+- Thumbnail
+- Level
+- Genre
+- PDF file
+- Video file / video URL
+- Duration
+- Quiz
+- Status
+- Created by admin
+
+Story level:
+- Beginner
+- Intermediate
+- Advanced
+
+Story genre:
+- Horror
+- Romance
+- School
+- Business
+- Daily Life
+- Mystery
+- Fantasy
+
+Status story:
+- Draft
+- Published
+
+Draft:
+Story belum tampil ke user.
+
+Published:
+Story sudah bisa diakses user.
+
+Flow publish:
+
+Admin Create Story
+→ Draft
+→ Upload PDF
+→ Upload Video
+→ Create Quiz
+→ Preview
+→ Publish
+→ Story muncul di website
+
+============================================================
+9. SISTEM PDF
+============================================================
+
+PDF digunakan untuk mode baca sendiri.
+
+Cara kerja:
+
+Admin Upload PDF
+→ File masuk ke Storage
+→ Database menyimpan URL PDF
+→ User membuka PDF Reader
+→ PDF tampil di browser
+
+Fitur PDF reader:
+- Next page
+- Previous page
+- Zoom in
+- Zoom out
+- Fullscreen
+- Mark as read
+
+Tracking PDF:
+
+Ketika user membuka atau menyelesaikan PDF, sistem menyimpan:
+
+is_pdf_read = true
+
+Catatan:
+V1 belum menggunakan fitur klik kata, vocabulary, atau subtitle sync. Fitur tersebut masuk ke V2.
+
+============================================================
+10. SISTEM VIDEO
+============================================================
+
+Video digunakan untuk mode dibacakan.
+
+Cara kerja:
+
+Admin Upload Video
+→ Video masuk ke Storage
+→ Database menyimpan URL Video
+→ User membuka Video Player
+→ Video tampil dan bisa diputar
+
+Fitur video player:
+- Play
+- Pause
+- Seek
+- Volume
+- Fullscreen
+- Playback speed
+- Continue to quiz
+
+Video completion system:
+
+Jika user menonton minimal 80%-90% dari durasi video, sistem menyimpan:
+
+is_video_watched = true
+
+Flow video:
+
+Admin Upload Video
+→ Storage
+→ Database simpan URL
+→ User buka video player
+→ Progress tersimpan
+
+============================================================
+11. SISTEM QUIZ
+============================================================
+
+Quiz muncul setelah user membaca PDF dan/atau menonton video.
+
+Tujuan quiz:
+- Menguji pemahaman cerita
+- Menguji vocabulary
+- Menguji listening comprehension
+- Meningkatkan retention user
+
+Jenis quiz V1:
+
+A. Multiple Choice
+
+Format:
+- 1 pertanyaan
+- 4 opsi jawaban
+- 1 jawaban benar
+
+Contoh:
+What did Anna find?
+
+A. A golden key
+B. A red book
+C. A blue bag
+D. A small bird
+
+B. Fill in the Blank
+
+Format:
+- User mengetik jawaban
+- Sistem mencocokkan dengan jawaban benar
+- Case insensitive
+
+Contoh:
+Anna found a small _____ key.
+
+Correct answer:
+golden
+
+C. Matching
+
+Format:
+User mencocokkan kata dengan arti.
+
+Contoh:
+brave → berani
+forest → hutan
+lost → tersesat
+
+D. Flashcard
+
+Format:
+- Card depan menampilkan kata
+- Card belakang menampilkan arti
+- User klik untuk flip card
+- User bisa pilih “I know” atau “I don’t know”
+
+Quiz engine flow:
+
+User mulai quiz
+→ Sistem tampilkan pertanyaan
+→ User menjawab
+→ User submit
+→ Sistem hitung score
+→ Sistem simpan hasil
+→ Sistem tampilkan result
+
+Scoring system:
+
+Contoh:
+10 soal
+1 soal = 10 poin
+
+Benar 8
+Score = 80
+
+Passing system:
+
+passing_score = 70
+
+Jika:
+
+score >= 70
+
+Maka:
+
+status = PASSED
+
+Jika:
+
+score < 70
+
+Maka:
+
+status = FAILED
+
+============================================================
+12. SISTEM RESULT QUIZ
+============================================================
+
+Setelah quiz selesai, user melihat halaman result.
+
+Isi halaman result:
+- Score akhir
+- Jumlah jawaban benar
+- Jumlah jawaban salah
+- Persentase
+- Status passed/failed
+- Review jawaban
+- Button retry quiz
+- Button next story
+
+Contoh:
+
+Score: 80%
+Correct: 8/10
+Status: Passed
+
+============================================================
+13. SISTEM PROGRESS
+============================================================
+
+Sistem menyimpan progress belajar setiap user pada setiap story.
+
+Progress status:
+- NOT_STARTED
+- IN_PROGRESS
+- COMPLETED
+
+Progress data:
+- is_pdf_read
+- is_video_watched
+- is_quiz_completed
+- score
+- last_accessed_at
+
+Flow progress:
+
+Ketika user membuka story:
+
+progress_status = IN_PROGRESS
+
+Ketika user membaca PDF:
+
+is_pdf_read = true
+
+Ketika user selesai menonton video:
+
+is_video_watched = true
+
+Ketika user selesai quiz:
+
+is_quiz_completed = true
+
+Story dianggap selesai jika:
+
+PDF selesai
+AND
+Video selesai
+AND
+Quiz selesai
+
+Maka:
+
+progress_status = COMPLETED
+
+============================================================
+14. ADMIN PANEL SYSTEM
+============================================================
+
+Admin panel adalah CMS StorySight.
+
+Fitur admin panel:
+
+A. Admin Dashboard
+
+Menampilkan:
+- Total users
+- Total stories
+- Total quiz
+- Total quiz attempts
+- Story terbaru
+- Average score
+- Completion rate
+
+B. Story Management
+
+Admin bisa:
+- Tambah story
+- Edit story
+- Delete story
+- Publish story
+- Unpublish story
+
+Field story:
+- Title
+- Slug
+- Description
+- Level
+- Genre
+- Duration
+- Thumbnail
+- PDF
+- Video
+- Status
+
+C. Upload Management
+
+Admin bisa:
+- Upload thumbnail
+- Upload PDF
+- Upload video
+- Input video URL
+
+D. Quiz Builder
+
+Admin bisa:
+- Tambah quiz
+- Tambah pertanyaan
+- Pilih tipe pertanyaan
+- Tambah opsi jawaban
+- Set jawaban benar
+- Atur urutan pertanyaan
+
+E. User Management
+
+Admin bisa:
+- Melihat daftar user
+- Melihat progress user
+- Melihat score quiz user
+
+============================================================
+15. SISTEM STORAGE
+============================================================
+
+Storage digunakan untuk menyimpan:
+- PDF
+- Video
+- Thumbnail
+
+Struktur file:
+
+/storage
+   /videos
+   /pdfs
+   /thumbnails
+
+File validation:
+
+PDF:
+Allowed file type:
+- .pdf
+
+Video:
+Allowed file type:
+- .mp4
+- .mov
+- .webm
+
+Thumbnail:
+Allowed file type:
+- .jpg
+- .jpeg
+- .png
+- .webp
+
+Rekomendasi storage:
+- Supabase Storage
+- Cloudinary
+- BunnyCDN
+- AWS S3 compatible storage
+
+Untuk MVP:
+Supabase Storage cukup digunakan.
+
+============================================================
+16. DATABASE SYSTEM
+============================================================
+
+Database utama menggunakan PostgreSQL.
+
+Tabel utama:
+
+A. users
+
+Field:
+- id
+- name
+- email
+- password_hash
+- role
+- created_at
+- updated_at
+
+B. stories
+
+Field:
+- id
+- title
+- slug
+- description
+- level
+- genre
+- thumbnail_url
+- pdf_url
+- video_url
+- duration
+- status
+- created_by
+- created_at
+- updated_at
+
+C. quizzes
+
+Field:
+- id
+- story_id
+- title
+- passing_score
+- created_at
+- updated_at
+
+D. quiz_questions
+
+Field:
+- id
+- quiz_id
+- type
+- question_text
+- order_number
+- points
+- created_at
+- updated_at
+
+E. quiz_options
+
+Field:
+- id
+- question_id
+- option_text
+- is_correct
+- match_key
+- match_value
+- created_at
+- updated_at
+
+F. quiz_answers
+
+Field:
+- id
+- question_id
+- correct_answer
+- created_at
+- updated_at
+
+G. user_story_progress
+
+Field:
+- id
+- user_id
+- story_id
+- is_pdf_read
+- is_video_watched
+- is_quiz_completed
+- progress_status
+- last_accessed_at
+- created_at
+- updated_at
+
+H. quiz_attempts
+
+Field:
+- id
+- user_id
+- quiz_id
+- story_id
+- score
+- correct_count
+- wrong_count
+- total_questions
+- passed
+- created_at
+
+I. quiz_attempt_answers
+
+Field:
+- id
+- attempt_id
+- question_id
+- user_answer
+- is_correct
+- created_at
+
+Relasi database:
+
+User
+  ↓
+User Story Progress
+  ↓
+Story
+  ↓
+Quiz
+  ↓
+Questions
+  ↓
+Options / Answers
+
+============================================================
+17. AUTHENTICATION SYSTEM
+============================================================
+
+Sistem login menggunakan:
+- Email
+- Password
+
+Login flow:
+
+User Login
+→ Backend verify email
+→ Backend verify password
+→ Generate session/token
+→ User masuk dashboard
+
+Role system:
+- ADMIN
+- USER
+
+Authorization:
+
+USER bisa:
+- Akses story
+- Baca PDF
+- Tonton video
+- Kerjakan quiz
+- Melihat dashboard user
+
+ADMIN bisa:
+- Akses admin panel
+- Manage story
+- Upload file
+- Manage quiz
+- Melihat analytics
+- Manage user
+
+Protected route:
+
+/admin/*
+
+Hanya bisa diakses oleh role ADMIN.
+
+============================================================
+18. SECURITY SYSTEM
+============================================================
+
+Security dasar V1:
+
+A. Password Hashing
+Password user disimpan dalam bentuk hash menggunakan bcrypt.
+
+B. Protected Route
+Route admin hanya bisa diakses oleh admin.
+
+C. File Validation
+Sistem memvalidasi tipe file sebelum upload.
+
+D. File Size Limit
+Sistem membatasi ukuran file upload.
+
+E. Role Based Access Control
+User biasa tidak bisa mengakses fitur admin.
+
+F. Input Validation
+Form input divalidasi di frontend dan backend.
+
+G. Secure Storage URL
+File URL disimpan dengan aman di database.
+
+============================================================
+19. ANALYTICS SYSTEM
+============================================================
+
+Analytics dasar untuk admin:
+
+Data yang ditampilkan:
+- Total users
+- Total stories
+- Total quiz attempts
+- Average score
+- Completion rate
+- Story paling populer
+- User aktif
+- Story dengan completion tertinggi
+
+Analytics V1 cukup sederhana dan fokus pada kebutuhan monitoring pembelajaran.
+
+============================================================
+20. UI SYSTEM — GLASSMORPHISM STYLE
+============================================================
+
+StorySight V1 menggunakan gaya UI modern glassmorphism agar terasa premium, ringan, edukatif, dan futuristik.
+
+Konsep visual:
+- Clean
+- Soft
+- Modern
+- Premium
+- Education Technology
+- Glass Effect
+- Smooth interaction
+- High trust design
+
+Design direction:
+
+Duolingo learning flow
++
+Netflix content browsing
++
+SaaS dashboard premium
++
+Glassmorphism modern
+
+Warna utama:
+
+Background:
+- Soft gradient
+- Putih kebiruan
+- Light blue
+- Soft purple
+
+Primary:
+- Electric Blue
+- Deep Blue
+
+Accent:
+- Cyan glow
+- Purple soft glow
+
+Komponen glassmorphism:
+
+Setiap card utama menggunakan efek:
+
+background: rgba(255, 255, 255, 0.18)
+backdrop-filter: blur(20px)
+border: 1px solid rgba(255, 255, 255, 0.35)
+box-shadow: soft shadow
+border-radius: 24px
+
+Area yang menggunakan glass effect:
+- Navbar
+- Story card
+- Login card
+- Register card
+- Dashboard card
+- Quiz card
+- Result score card
+- Admin statistic card
+- Modal upload
+- Sidebar admin
+- PDF reader container
+- Video player container
+
+UI Story Card:
+
+Story card tampil seperti floating glass panel.
+
+Isi:
+- Thumbnail
+- Title
+- Level badge
+- Genre badge
+- Duration
+- Progress bar
+- Button Start Learning
+
+UI Reader Page:
+
+Layout:
+- Soft gradient background
+- PDF reader di dalam glass container
+- Sidebar progress
+- Button lanjut ke video
+
+UI Video Page:
+
+Layout:
+- Video player dalam glass container
+- Story info panel
+- Button lanjut ke quiz
+- Progress indicator
+
+UI Quiz Page:
+
+Quiz menggunakan card glass besar di tengah layar.
+
+Elemen:
+- Question card
+- Answer option glass button
+- Progress question indicator
+- Submit button gradient
+
+UI Admin Panel:
+
+Admin panel tetap clean dan profesional.
+
+Menggunakan:
+- Glass sidebar navigation
+- Glass statistic cards
+- Glass upload form
+- Clean table dengan soft border
+- Modal glass untuk form upload
+
+CSS base style:
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 20px 60px rgba(31, 111, 255, 0.12);
+  border-radius: 24px;
+}
+
+Catatan implementasi UI:
+
+Gunakan:
+- Tailwind CSS
+- Shadcn/UI
+- Framer Motion
+- Lucide Icons
+
+Agar UI terasa:
+- Modern
+- Smooth
+- Premium
+- Interactive
+- High trust
+
+============================================================
+21. TECH STACK REKOMENDASI V1
+============================================================
+
+Frontend:
+- Next.js
+- React
+- Tailwind CSS
+- Shadcn/UI
+- Framer Motion
+
+Backend:
+- Next.js API Route untuk MVP
+atau
+- NestJS untuk backend terpisah
+
+Database:
+- PostgreSQL
+
+ORM:
+- Prisma
+
+Authentication:
+- NextAuth/Auth.js
+atau
+- Clerk
+
+File Storage:
+- Supabase Storage
+atau
+- Cloudinary
+atau
+- BunnyCDN
+
+PDF Viewer:
+- react-pdf
+
+Video Player:
+- React Player
+atau
+- Video.js
+
+Deployment:
+- Vercel
+atau
+- VPS Ubuntu
+
+============================================================
+22. DEPLOYMENT SYSTEM
+============================================================
+
+Deployment option 1:
+
+Frontend + Backend:
+- Vercel
+
+Database:
+- Supabase PostgreSQL
+
+Storage:
+- Supabase Storage
+
+Deployment option 2:
+
+Frontend + Backend:
+- VPS Ubuntu
+
+Database:
+- PostgreSQL di VPS
+
+Storage:
+- Local storage atau S3-compatible storage
+
+Untuk MVP paling praktis:
+
+Next.js
++ PostgreSQL
++ Prisma
++ Supabase Storage
++ Vercel
+
+============================================================
+23. BATASAN V1
+============================================================
+
+Fitur yang tidak masuk V1:
+
+- AI story generator
+- Subtitle sync
+- Klik kata untuk vocabulary
+- Pronunciation checker
+- Gamification lengkap
+- Leaderboard
+- Mobile app
+- Payment subscription
+- Live class
+- Story builder custom
+- PPTX animation support
+
+Fitur tersebut bisa masuk ke V2 atau V3.
+
+============================================================
+24. ROADMAP SETELAH V1
+============================================================
+
+V2:
+- Vocabulary bank
+- Save difficult words
+- Progress detail
+- Streak belajar
+- Badge sederhana
+- Subtitle sync
+- Listening quiz
+
+V3:
+- AI story generator
+- AI quiz generator
+- AI pronunciation checker
+- Personalized learning path
+- Interactive story ending
+- Premium subscription
+
+============================================================
+25. TARGET MVP V1
+============================================================
+
+StorySight V1 dianggap selesai jika:
+
+- Admin bisa login
+- Admin bisa membuat story
+- Admin bisa upload thumbnail
+- Admin bisa upload PDF
+- Admin bisa upload video
+- Admin bisa membuat quiz
+- Admin bisa publish story
+- User bisa register/login
+- User bisa melihat daftar story
+- User bisa membaca PDF
+- User bisa menonton video
+- User bisa mengerjakan quiz
+- User bisa melihat score
+- Sistem menyimpan progress
+- Sistem menyimpan quiz attempt
+- Admin bisa melihat data dasar progress user
+
+============================================================
+26. KESIMPULAN SISTEM
+============================================================
+
+StorySight V1 adalah sistem pembelajaran bahasa Inggris berbasis cerita dengan format sederhana:
+
+PDF untuk membaca sendiri.
+Video untuk mode dibacakan.
+Quiz untuk menguji pemahaman.
+Progress tracking untuk memantau pembelajaran.
+Admin panel untuk mengelola semua konten.
+
+Dengan pendekatan ini, StorySight bisa launching lebih cepat sebagai MVP, tetap terlihat modern dengan UI glassmorphism, dan tetap punya pondasi kuat untuk dikembangkan menjadi platform EdTech berbasis AI di versi berikutnya.
+
+============================================================
+END OF DOCUMENT
+============================================================
