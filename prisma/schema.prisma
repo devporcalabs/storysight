@@ -1,0 +1,143 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String              @id @default(uuid())
+  name         String
+  email        String              @unique
+  passwordHash String
+  role         String              @default("STUDENT") // "SUPERADMIN", "TEACHER", "STUDENT"
+  school       String?             // School origin for STUDENT and TEACHER
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  progress     UserStoryProgress[]
+  attempts     QuizAttempt[]
+}
+
+model Story {
+  id           String              @id @default(uuid())
+  title        String
+  slug         String              @unique
+  description  String
+  level        String              // "Beginner", "Intermediate", "Advanced"
+  genre        String              // "Horror", "Romance", "School", "Business", "Daily Life", "Mystery", "Fantasy"
+  thumbnailUrl String
+  pdfUrl       String
+  videoUrl     String
+  duration     Int                 // duration in seconds
+  status       String              @default("Draft") // "Draft", "Published"
+  createdBy    String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  quizzes      Quiz[]
+  progress     UserStoryProgress[]
+  attempts     QuizAttempt[]
+  carouselBanners CarouselBanner[]
+}
+
+model Quiz {
+  id           String        @id @default(uuid())
+  storyId      String        @unique
+  story        Story         @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  title        String
+  passingScore Int           @default(70)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  questions    QuizQuestion[]
+  attempts     QuizAttempt[]
+}
+
+model QuizQuestion {
+  id           String       @id @default(uuid())
+  quizId       String
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  type         String       // "MULTIPLE_CHOICE", "FILL_IN_THE_BLANK", "MATCHING", "FLASHCARD"
+  questionText String
+  orderNumber  Int
+  points       Int          @default(10)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  options      QuizOption[]
+  answers      QuizAnswer[]
+}
+
+model QuizOption {
+  id          String       @id @default(uuid())
+  questionId  String
+  question    QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionText  String
+  isCorrect   Boolean      @default(false)
+  matchKey    String?      // for Matching type (Indonesian/English)
+  matchValue  String?      // for Matching type (translation)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model QuizAnswer {
+  id            String       @id @default(uuid())
+  questionId    String
+  question      QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  correctAnswer String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model UserStoryProgress {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storyId         String
+  story           Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  isPdfRead       Boolean  @default(false)
+  isVideoWatched  Boolean  @default(false)
+  isQuizCompleted Boolean  @default(false)
+  progressStatus  String   @default("NOT_STARTED") // "NOT_STARTED", "IN_PROGRESS", "COMPLETED"
+  lastAccessedAt  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, storyId])
+}
+
+model QuizAttempt {
+  id             String               @id @default(uuid())
+  userId         String
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizId         String
+  quiz           Quiz                 @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  storyId        String
+  story          Story                @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  score          Int
+  correctCount   Int
+  wrongCount     Int
+  totalQuestions Int
+  passed         Boolean
+  createdAt      DateTime             @default(now())
+  answers        QuizAttemptAnswer[]
+}
+
+model QuizAttemptAnswer {
+  id         String      @id @default(uuid())
+  attemptId  String
+  attempt    QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId String
+  userAnswer String
+  isCorrect  Boolean
+  createdAt  DateTime    @default(now())
+}
+
+model CarouselBanner {
+  id        String   @id @default(uuid())
+  imageUrl  String
+  storyId   String
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
