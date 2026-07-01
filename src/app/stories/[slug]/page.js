@@ -77,7 +77,7 @@ export default function StoryDetailPage() {
           {/* Left Column: Featured Image & Synopsis */}
           <div className="md:col-span-5 space-y-6">
             {/* Featured Image Card */}
-            <div className="relative rounded-3xl overflow-hidden glass-card shadow-xl aspect-[4/3] group">
+            <div className="relative rounded-3xl overflow-hidden glass-card shadow-xl aspect-video group">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-primary-container/20" />
               {story.thumbnailUrl ? (
                 <img
@@ -105,6 +105,14 @@ export default function StoryDetailPage() {
               <h3 className="font-display font-bold text-slate-800 text-sm mb-3">Sinopsis Cerita</h3>
               <p className="text-slate-500 text-xs leading-relaxed font-semibold font-sans">{story.description}</p>
             </div>
+
+            {/* Learning Objectives Card */}
+            {story.learningObjectives && (
+              <div className="glass-card p-6 rounded-3xl">
+                <h3 className="font-display font-bold text-slate-800 text-sm mb-3">Tujuan Pembelajaran (Learning Objectives)</h3>
+                <p className="text-slate-500 text-xs leading-relaxed font-semibold font-sans whitespace-pre-wrap">{story.learningObjectives}</p>
+              </div>
+            )}
           </div>
 
           {/* Right Column: Title, Progress, and Options */}

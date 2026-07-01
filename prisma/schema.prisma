@@ -14,6 +14,7 @@ model User {
   passwordHash String
   role         String              @default("STUDENT") // "SUPERADMIN", "TEACHER", "STUDENT"
   school       String?             // School origin for STUDENT and TEACHER
+  expiresAt    DateTime?
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   progress     UserStoryProgress[]
@@ -24,8 +25,9 @@ model Story {
   id           String              @id @default(uuid())
   title        String
   slug         String              @unique
-  description  String
-  level        String              // "Beginner", "Intermediate", "Advanced"
+  description        String
+  learningObjectives String?
+  level              String              // "Level 1" to "Level 6"
   genre        String              // "Horror", "Romance", "School", "Business", "Daily Life", "Mystery", "Fantasy"
   thumbnailUrl String
   pdfUrl       String

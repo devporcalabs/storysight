@@ -11,7 +11,7 @@ export default function StoriesPage() {
   const [level, setLevel] = useState("");
   const [genre, setGenre] = useState("");
 
-  const levels = ["Beginner", "Intermediate", "Advanced"];
+  const levels = ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6"];
   const genres = [
     "Horror",
     "Romance",
@@ -137,7 +137,7 @@ export default function StoriesPage() {
                   key={story.id}
                   className="glass-card rounded-[24px] overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                 >
-                  <div className="relative h-48 bg-slate-100 overflow-hidden flex items-center justify-center">
+                  <div className="relative aspect-video w-full bg-slate-100 overflow-hidden flex items-center justify-center">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-primary-container/20" />
                     {story.thumbnailUrl && story.thumbnailUrl !== "/uploads/thumbnails/golden-key.png" ? (
                       <img

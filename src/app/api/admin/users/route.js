@@ -48,6 +48,7 @@ export async function GET(request) {
         role: true,
         school: true,
         createdAt: true,
+        expiresAt: true,
         progress: {
           select: {
             progressStatus: true,
@@ -88,6 +89,7 @@ export async function GET(request) {
         role: u.role,
         school: u.school,
         createdAt: u.createdAt,
+        expiresAt: u.expiresAt,
         completedCount,
         attemptsCount: totalAttemptsCount,
         averageScore,
@@ -113,7 +115,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, email, password, role, school } = body;
+    const { name, email, password, role, school, expiresAt } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -162,6 +164,7 @@ export async function POST(request) {
         passwordHash,
         role: targetRole,
         school: targetSchool ? targetSchool.trim() : null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
       },
     });
 
@@ -174,6 +177,7 @@ export async function POST(request) {
           email: createdUser.email,
           role: createdUser.role,
           school: createdUser.school,
+          expiresAt: createdUser.expiresAt,
         },
       },
       { status: 201 }

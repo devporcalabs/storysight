@@ -59,9 +59,9 @@ export default function StudentDashboard() {
   }
 
   // Count levels for statistics
-  const beginnerCount = stats?.completedStories?.filter(s => s.level === "Beginner").length || 0;
-  const intermediateCount = stats?.completedStories?.filter(s => s.level === "Intermediate").length || 0;
-  const advancedCount = stats?.completedStories?.filter(s => s.level === "Advanced").length || 0;
+  const level12Count = stats?.completedStories?.filter(s => s.level === "Level 1" || s.level === "Level 2" || s.level === "Beginner").length || 0;
+  const level34Count = stats?.completedStories?.filter(s => s.level === "Level 3" || s.level === "Level 4" || s.level === "Intermediate").length || 0;
+  const level56Count = stats?.completedStories?.filter(s => s.level === "Level 5" || s.level === "Level 6" || s.level === "Advanced").length || 0;
 
   // Compute Greeting based on local time
   const hour = new Date().getHours();
@@ -124,18 +124,18 @@ export default function StudentDashboard() {
 
           <div className="mt-6 pt-6 border-t border-slate-200/40 flex justify-between text-center font-sans font-semibold">
             <div>
-              <p className="font-extrabold text-sm text-slate-800">{beginnerCount}</p>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Beginner</p>
+              <p className="font-extrabold text-sm text-slate-800">{level12Count}</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Level 1 - 2</p>
             </div>
             <div className="h-6 w-[1px] bg-slate-100" />
             <div>
-              <p className="font-extrabold text-sm text-slate-800">{intermediateCount}</p>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Intermediate</p>
+              <p className="font-extrabold text-sm text-slate-800">{level34Count}</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Level 3 - 4</p>
             </div>
             <div className="h-6 w-[1px] bg-slate-100" />
             <div>
-              <p className="font-extrabold text-sm text-slate-800">{advancedCount}</p>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Advanced</p>
+              <p className="font-extrabold text-sm text-slate-800">{level56Count}</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Level 5 - 6</p>
             </div>
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function StudentDashboard() {
                 key={story.id}
                 className="glass-panel group rounded-3xl overflow-hidden hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between"
               >
-                <div className="relative h-40 bg-slate-100 flex items-center justify-center">
+                <div className="relative aspect-video w-full bg-slate-100 flex items-center justify-center">
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent z-10"></div>
                   {story.slug === "the-golden-key" ? (
                     <img
@@ -260,7 +260,7 @@ export default function StudentDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {recommendations.map((story) => (
               <div key={story.id} className="glass-panel p-4 rounded-3xl hover:glow-edge transition-all duration-300 flex flex-col justify-between">
-                <div className="aspect-square rounded-2xl overflow-hidden mb-4 relative group bg-slate-100 flex items-center justify-center">
+                <div className="aspect-video w-full rounded-2xl overflow-hidden mb-4 relative group bg-slate-100 flex items-center justify-center">
                   {story.slug === "the-golden-key" ? (
                     <img
                       src="/uploads/thumbnails/golden-key.png"

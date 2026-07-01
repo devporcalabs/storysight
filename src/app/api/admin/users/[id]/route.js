@@ -28,10 +28,13 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const { name, email, password, role, school } = body;
+    const { name, email, password, role, school, expiresAt } = body;
 
     const data = {};
     if (name) data.name = name;
+    if (expiresAt !== undefined) {
+      data.expiresAt = expiresAt ? new Date(expiresAt) : null;
+    }
     
     if (email && email.toLowerCase() !== targetUser.email) {
       const emailLower = email.toLowerCase();
@@ -81,6 +84,7 @@ export async function PUT(request, { params }) {
         email: updatedUser.email,
         role: updatedUser.role,
         school: updatedUser.school,
+        expiresAt: updatedUser.expiresAt,
       },
     });
   } catch (error) {

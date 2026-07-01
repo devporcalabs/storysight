@@ -33,6 +33,14 @@ export async function POST(request) {
       );
     }
 
+    // Check if account has expired (expiresAt is set and has passed)
+    if (user.expiresAt && new Date() > new Date(user.expiresAt)) {
+      return NextResponse.json(
+        { error: "Akun Anda telah kedaluwarsa. Silakan hubungi administrator." },
+        { status: 403 }
+      );
+    }
+
     // Generate JWT
     const token = await signToken({
       id: user.id,

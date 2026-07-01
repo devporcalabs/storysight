@@ -393,7 +393,7 @@ Fitur video player:
 
 Video completion system:
 
-Jika user menonton minimal 80%-90% dari durasi video, sistem menyimpan:
+Jika user menonton video hingga selesai (100%), sistem menyimpan:
 
 is_video_watched = true
 

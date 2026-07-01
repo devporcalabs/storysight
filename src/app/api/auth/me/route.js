@@ -5,10 +5,31 @@ import { comparePassword, hashPassword, signToken, verifyToken } from "@/lib/aut
 export async function GET(request) {
   try {
     const token = request.cookies.get("session")?.value;
-    const user = token ? await verifyToken(token) : null;
+    const userPayload = token ? await verifyToken(token) : null;
+
+    if (!userPayload) {
+      return NextResponse.json({ authenticated: false });
+    }
+
+    // Verify user dynamically against database to check for account expiration
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        school: true,
+        expiresAt: true,
+      },
+    });
 
     if (!user) {
       return NextResponse.json({ authenticated: false });
+    }
+
+    if (user.expiresAt && new Date() > new Date(user.expiresAt)) {
+      return NextResponse.json({ authenticated: false, error: "Expired" });
     }
 
     return NextResponse.json({

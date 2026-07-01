@@ -93,7 +93,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const { title, description, level, genre, thumbnailUrl, pdfUrl, videoUrl, duration, status, questions } = body;
+    const { title, description, learningObjectives, level, genre, thumbnailUrl, pdfUrl, videoUrl, duration, status, questions } = body;
 
     const existing = await prisma.story.findFirst({
       where: {
@@ -115,6 +115,7 @@ export async function PUT(request, { params }) {
         data: {
           title,
           description,
+          learningObjectives: learningObjectives !== undefined ? learningObjectives : undefined,
           level,
           genre,
           thumbnailUrl,

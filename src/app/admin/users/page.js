@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { 
   Search, Plus, Edit, Trash2, Eye, BookOpen, Award, 
   Shield, School, UserPlus, X, CheckCircle2, XCircle, 
-  Lock, Mail, User, BookOpenCheck 
+  Lock, Mail, User, BookOpenCheck, FileDown, FileUp 
 } from "lucide-react";
 
 export default function AdminUsersPage() {
@@ -18,6 +18,7 @@ export default function AdminUsersPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   
   const [selectedUser, setSelectedUser] = useState(null);
   
@@ -27,6 +28,12 @@ export default function AdminUsersPage() {
   const [formPassword, setFormPassword] = useState("");
   const [formRole, setFormRole] = useState("STUDENT");
   const [formSchool, setFormSchool] = useState("");
+  const [formExpiresAt, setFormExpiresAt] = useState("");
+
+  // CSV Import state
+  const [importFile, setImportFile] = useState(null);
+  const [importProgress, setImportProgress] = useState(null);
+  const [importSubmitting, setImportSubmitting] = useState(false);
   
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -84,6 +91,7 @@ export default function AdminUsersPage() {
     setFormPassword("");
     setFormRole("STUDENT");
     setFormSchool(session.role === "TEACHER" ? session.school : "");
+    setFormExpiresAt("");
     setErrorMsg("");
     setSuccessMsg("");
     setShowAddModal(true);
@@ -96,6 +104,8 @@ export default function AdminUsersPage() {
     setFormPassword("");
     setFormRole(user.role);
     setFormSchool(user.school || "");
+    const formattedDate = user.expiresAt ? new Date(user.expiresAt).toISOString().split('T')[0] : "";
+    setFormExpiresAt(formattedDate);
     setErrorMsg("");
     setSuccessMsg("");
     setShowEditModal(true);
@@ -123,6 +133,7 @@ export default function AdminUsersPage() {
           password: formPassword,
           role: session.role === "TEACHER" ? "STUDENT" : formRole,
           school: session.role === "TEACHER" ? session.school : formSchool,
+          expiresAt: formExpiresAt || null,
         }),
       });
 
@@ -160,6 +171,7 @@ export default function AdminUsersPage() {
           password: formPassword || undefined,
           role: session.role === "TEACHER" ? "STUDENT" : formRole,
           school: session.role === "TEACHER" ? session.school : formSchool,
+          expiresAt: formExpiresAt || null,
         }),
       });
 
@@ -179,7 +191,6 @@ export default function AdminUsersPage() {
       setFormSubmitting(false);
     }
   };
-
   // Submit Delete User
   const handleDeleteUser = async (userId) => {
     if (!confirm("Are you sure you want to delete this user? All their progress and quiz attempts will be permanently lost.")) {
@@ -201,6 +212,135 @@ export default function AdminUsersPage() {
     } catch (e) {
       alert("Network error. Failed to delete user.");
     }
+  };
+
+  // Export Student Data to CSV
+  const handleExportCSV = () => {
+    const studentsToExport = users.filter(u => u.role === "STUDENT");
+    if (studentsToExport.length === 0) {
+      alert("Tidak ada data siswa untuk diekspor.");
+      return;
+    }
+
+    let csvContent = "\uFEFFname,email,role,school,createdAt\n"; // UTF-8 BOM for Excel compatibility
+
+    studentsToExport.forEach(u => {
+      const nameEscaped = `"${u.name.replace(/"/g, '""')}"`;
+      const emailEscaped = `"${u.email.replace(/"/g, '""')}"`;
+      const roleEscaped = `"${u.role.replace(/"/g, '""')}"`;
+      const schoolEscaped = `"${(u.school || "").replace(/"/g, '""')}"`;
+      const dateEscaped = `"${new Date(u.createdAt).toLocaleDateString()}"`;
+      
+      csvContent += `${nameEscaped},${emailEscaped},${roleEscaped},${schoolEscaped},${dateEscaped}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `data_siswa_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Import Student Data from CSV
+  const handleImportCSVSubmit = async (e) => {
+    e.preventDefault();
+    if (!importFile) return;
+
+    setImportSubmitting(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target.result;
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+      
+      if (lines.length <= 1) {
+        setErrorMsg("File CSV kosong atau hanya berisi header.");
+        setImportSubmitting(false);
+        return;
+      }
+
+      // Parse headers
+      const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/^["']|["']$/g, ""));
+      const nameIdx = headers.indexOf("name");
+      const emailIdx = headers.indexOf("email");
+      const passwordIdx = headers.indexOf("password");
+      const schoolIdx = headers.indexOf("school");
+
+      if (nameIdx === -1 || emailIdx === -1 || passwordIdx === -1) {
+        setErrorMsg("Header CSV harus memiliki kolom: name, email, dan password.");
+        setImportSubmitting(false);
+        return;
+      }
+
+      const rows = lines.slice(1);
+      const total = rows.length;
+      let success = 0;
+      let errors = [];
+
+      setImportProgress({ total, current: 0, success: 0, errors: [] });
+
+      for (let i = 0; i < total; i++) {
+        const row = rows[i];
+        if (!row.trim()) continue;
+
+        // Parse CSV row respecting potential quotes
+        const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(",");
+        const cells = matches.map(c => c.trim().replace(/^["']|["']$/g, "").replace(/""/g, '"'));
+
+        const name = cells[nameIdx];
+        const email = cells[emailIdx];
+        const password = cells[passwordIdx];
+        const school = schoolIdx !== -1 ? cells[schoolIdx] : "";
+
+        if (!name || !email || !password) {
+          errors.push(`Baris ${i + 2}: Kolom nama, email, atau password kosong.`);
+          setImportProgress(prev => ({ ...prev, current: i + 1, errors }));
+          continue;
+        }
+
+        try {
+          const res = await fetch("/api/admin/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name,
+              email,
+              password,
+              role: "STUDENT",
+              school: session.role === "TEACHER" ? session.school : school,
+            }),
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            success++;
+          } else {
+            errors.push(`Baris ${i + 2} (${email}): ${data.error || "Gagal menambahkan."}`);
+          }
+        } catch (err) {
+          errors.push(`Baris ${i + 2} (${email}): Gangguan koneksi server.`);
+        }
+
+        setImportProgress(prev => ({
+          ...prev,
+          current: i + 1,
+          success,
+          errors: [...errors]
+        }));
+      }
+
+      setSuccessMsg(`Berhasil mengimpor ${success} dari ${total} siswa.`);
+      fetchUsers();
+      setImportSubmitting(false);
+    };
+
+    reader.readAsText(importFile);
   };
 
   // Extract unique school list for Superadmin filter
@@ -263,13 +403,39 @@ export default function AdminUsersPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAddModal}
-          className="flex items-center justify-center gap-2 py-3 px-5 primary-gradient text-white rounded-xl font-display text-xs font-bold shadow-lg hover:shadow-xl active:scale-[0.98] transition-all cursor-pointer"
-        >
-          <UserPlus className="w-4 h-4" />
-          {session.role === "SUPERADMIN" ? "Add User" : "Add Student"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center justify-center gap-1.5 py-3 px-4 bg-white/60 border border-slate-200 text-slate-700 rounded-xl font-display text-xs font-bold shadow-sm hover:bg-slate-50 transition cursor-pointer"
+            title="Ekspor Data Siswa ke CSV"
+          >
+            <FileDown className="w-4 h-4 text-slate-500" />
+            Ekspor CSV
+          </button>
+
+          <button
+            onClick={() => {
+              setImportFile(null);
+              setImportProgress(null);
+              setErrorMsg("");
+              setSuccessMsg("");
+              setShowImportModal(true);
+            }}
+            className="flex items-center justify-center gap-1.5 py-3 px-4 bg-white/60 border border-slate-200 text-slate-700 rounded-xl font-display text-xs font-bold shadow-sm hover:bg-slate-50 transition cursor-pointer"
+            title="Impor Data Siswa dari CSV"
+          >
+            <FileUp className="w-4 h-4 text-slate-500" />
+            Impor CSV
+          </button>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center justify-center gap-2 py-3 px-5 primary-gradient text-white rounded-xl font-display text-xs font-bold shadow-lg hover:shadow-xl active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4" />
+            {session.role === "SUPERADMIN" ? "Add User" : "Add Student"}
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -387,6 +553,19 @@ export default function AdminUsersPage() {
                       <div>
                         <div className="font-bold text-slate-800">{user.name}</div>
                         <div className="text-slate-400 text-[10px] font-sans mt-0.5">{user.email}</div>
+                        {user.expiresAt && (
+                          <div className={`text-[9px] font-bold mt-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded ${
+                            new Date() > new Date(user.expiresAt)
+                              ? "bg-rose-50 text-rose-600 border border-rose-100"
+                              : "bg-slate-50 text-slate-500 border border-slate-100"
+                          }`}>
+                            <Lock className="w-2.5 h-2.5 animate-pulse" />
+                            {new Date() > new Date(user.expiresAt)
+                              ? `Expired: ${new Date(user.expiresAt).toLocaleDateString()}`
+                              : `Expires: ${new Date(user.expiresAt).toLocaleDateString()}`
+                            }
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="py-4 px-4">{renderRoleBadge(user.role)}</td>
@@ -569,6 +748,16 @@ export default function AdminUsersPage() {
                 </div>
               )}
 
+              <div>
+                <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">Account Expiry Date (Optional)</label>
+                <input
+                  type="date"
+                  value={formExpiresAt}
+                  onChange={(e) => setFormExpiresAt(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl text-xs border border-slate-200 outline-none focus:border-primary transition font-semibold"
+                />
+              </div>
+
               <div className="flex gap-3 justify-end pt-4 border-t border-slate-100">
                 <button
                   type="button"
@@ -702,6 +891,16 @@ export default function AdminUsersPage() {
                 </div>
               )}
 
+              <div>
+                <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">Account Expiry Date (Optional)</label>
+                <input
+                  type="date"
+                  value={formExpiresAt}
+                  onChange={(e) => setFormExpiresAt(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl text-xs border border-slate-200 outline-none focus:border-primary transition font-semibold"
+                />
+              </div>
+
               <div className="flex gap-3 justify-end pt-4 border-t border-slate-100">
                 <button
                   type="button"
@@ -822,6 +1021,95 @@ export default function AdminUsersPage() {
                 Close Profile
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Import CSV */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <h3 className="font-display font-bold text-slate-800 text-sm flex items-center gap-2">
+                <FileUp className="w-4 h-4 text-primary" />
+                Impor Siswa via CSV
+              </h3>
+              <button onClick={() => setShowImportModal(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleImportCSVSubmit} className="p-6 space-y-4">
+              {errorMsg && (
+                <div className="bg-rose-50 border border-rose-100 text-rose-600 text-xs font-semibold px-4 py-3 rounded-xl">
+                  {errorMsg}
+                </div>
+              )}
+              {successMsg && (
+                <div className="bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-semibold px-4 py-3 rounded-xl flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> {successMsg}
+                </div>
+              )}
+
+              <div className="bg-slate-50 border border-slate-200/50 p-4 rounded-xl space-y-2 text-[10px] text-slate-500 font-semibold leading-relaxed font-sans">
+                <p className="font-bold text-slate-700">Format File CSV:</p>
+                <p>File CSV harus memiliki baris pertama sebagai header dengan kolom berikut:</p>
+                <code className="block bg-slate-950 text-slate-200 p-2 rounded font-mono text-[9px]">name,email,password,school</code>
+                <p className="text-[9px] text-slate-400 italic">* Kolom school bersifat opsional. Bagi guru, sekolah otomatis disesuaikan.</p>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">Pilih File CSV</label>
+                <input
+                  type="file"
+                  accept=".csv"
+                  required
+                  onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                  className="w-full text-xs font-semibold text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 file:cursor-pointer"
+                />
+              </div>
+
+              {/* Import Progress Section */}
+              {importProgress && (
+                <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50 space-y-2 text-xs font-semibold text-slate-600">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
+                    <span>Progres: {importProgress.current} / {importProgress.total} baris</span>
+                    <span>Selesai: {importProgress.success}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-primary transition-all duration-300"
+                      style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                    />
+                  </div>
+                  {importProgress.errors.length > 0 && (
+                    <div className="max-h-24 overflow-y-auto text-[10px] text-rose-600 font-mono space-y-1 mt-2 border-t border-slate-200/40 pt-2">
+                      <p className="font-bold">Daftar Error/Lewati:</p>
+                      {importProgress.errors.map((err, idx) => (
+                        <p key={idx}>{err}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-end pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 rounded-xl cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={importSubmitting || !importFile}
+                  className="px-5 py-2.5 text-xs font-bold text-white primary-gradient rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer"
+                >
+                  {importSubmitting ? "Mengimpor..." : "Mulai Impor"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

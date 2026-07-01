@@ -11,7 +11,8 @@ export default function EditStoryPage({ params }) {
   // Story state fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [level, setLevel] = useState("Beginner");
+  const [learningObjectives, setLearningObjectives] = useState("");
+  const [level, setLevel] = useState("Level 1");
   const [genre, setGenre] = useState("Daily Life");
   const [duration, setDuration] = useState("120");
   const [status, setStatus] = useState("Draft");
@@ -61,7 +62,8 @@ export default function EditStoryPage({ params }) {
         
         setTitle(data.title || "");
         setDescription(data.description || "");
-        setLevel(data.level || "Beginner");
+        setLearningObjectives(data.learningObjectives || "");
+        setLevel(data.level || "Level 1");
         setGenre(data.genre || "Daily Life");
         setDuration(String(data.duration || "120"));
         setStatus(data.status || "Draft");
@@ -238,6 +240,7 @@ export default function EditStoryPage({ params }) {
         body: JSON.stringify({
           title,
           description,
+          learningObjectives,
           level,
           genre,
           thumbnailUrl,
@@ -330,6 +333,19 @@ export default function EditStoryPage({ params }) {
               />
             </div>
 
+            <div className="md:col-span-2">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-2">
+                Learning Objectives (Optional)
+              </label>
+              <textarea
+                rows={3}
+                value={learningObjectives}
+                onChange={(e) => setLearningObjectives(e.target.value)}
+                placeholder="Write the learning objectives (e.g. key vocabulary, moral value, grammar focus)..."
+                className="w-full px-4 py-3 rounded-xl text-xs glass-input transition font-semibold"
+              />
+            </div>
+
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-2">
                 English Level
@@ -339,9 +355,12 @@ export default function EditStoryPage({ params }) {
                 onChange={(e) => setLevel(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl text-xs glass-input transition font-bold text-slate-700 cursor-pointer"
               >
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
+                <option value="Level 1">Level 1</option>
+                <option value="Level 2">Level 2</option>
+                <option value="Level 3">Level 3</option>
+                <option value="Level 4">Level 4</option>
+                <option value="Level 5">Level 5</option>
+                <option value="Level 6">Level 6</option>
               </select>
             </div>
 
@@ -403,7 +422,7 @@ export default function EditStoryPage({ params }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Thumbnail Image</label>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">JPG, PNG, WebP (Max 10MB)</span>
+                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">JPG, PNG, WebP (Max 1MB)</span>
               </div>
               <div className="md:col-span-2">
                 {thumbnailUrl ? (

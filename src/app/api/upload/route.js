@@ -48,13 +48,10 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid upload type" }, { status: 400 });
     }
 
-    // Size limits: 100MB for video, 10MB for PDFs/images
+    // Size limits: Max 1MB for all files
     const sizeInMB = file.size / (1024 * 1024);
-    if (type === "video" && sizeInMB > 100) {
-      return NextResponse.json({ error: "Video must be smaller than 100MB" }, { status: 400 });
-    }
-    if (type !== "video" && sizeInMB > 10) {
-      return NextResponse.json({ error: "File must be smaller than 10MB" }, { status: 400 });
+    if (sizeInMB > 1) {
+      return NextResponse.json({ error: "File must be smaller than 1MB" }, { status: 400 });
     }
 
     // Generate unique file name

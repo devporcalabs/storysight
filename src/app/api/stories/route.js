@@ -82,7 +82,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, description, level, genre, thumbnailUrl, pdfUrl, videoUrl, duration, status, questions } = body;
+    const { title, description, learningObjectives, level, genre, thumbnailUrl, pdfUrl, videoUrl, duration, status, questions } = body;
 
     if (!title || !description || !level || !genre || !thumbnailUrl || !pdfUrl || !videoUrl || !duration) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -105,6 +105,7 @@ export async function POST(request) {
           title,
           slug,
           description,
+          learningObjectives: learningObjectives || null,
           level,
           genre,
           thumbnailUrl,

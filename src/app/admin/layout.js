@@ -38,7 +38,7 @@ export default function AdminLayout({ children }) {
   return (
     <div className="bg-surface mesh-gradient-bg min-h-screen font-sans text-slate-800 flex flex-col md:flex-row">
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-white/40 backdrop-blur-xl border-r border-slate-200/40 flex flex-col shrink-0 justify-between">
+      <aside className="w-full md:w-64 md:sticky md:top-0 md:h-screen bg-white/40 backdrop-blur-xl border-r border-slate-200/40 flex flex-col shrink-0 justify-between z-40">
         <div className="flex-1 flex flex-col">
           {/* Brand */}
           <div className="p-6 border-b border-slate-200/40 flex items-center gap-3">

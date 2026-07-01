@@ -19,6 +19,7 @@ export default function WatchVideoPage() {
   const [story, setStory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [videoWatched, setVideoWatched] = useState(false);
+  const videoWatchedRef = useRef(false);
   const playerRef = useRef(null);
 
   useEffect(() => {
@@ -31,7 +32,9 @@ export default function WatchVideoPage() {
         }
         const data = await res.json();
         setStory(data);
-        setVideoWatched(data.progress?.isVideoWatched || false);
+        const watched = data.progress?.isVideoWatched || false;
+        setVideoWatched(watched);
+        videoWatchedRef.current = watched;
       } catch (e) {
         console.error(e);
         router.push(`/stories/${slug}`);
@@ -41,6 +44,11 @@ export default function WatchVideoPage() {
     };
     fetchStory();
   }, [slug]);
+
+  // Sync ref with state updates
+  useEffect(() => {
+    videoWatchedRef.current = videoWatched;
+  }, [videoWatched]);
 
   const markVideoAsWatched = async () => {
     if (!story) return;
@@ -89,6 +97,14 @@ export default function WatchVideoPage() {
         },
         events: {
           onStateChange: (event) => {
+            // Check if the video ended (100% completion)
+            if (event.data === window.YT.PlayerState.ENDED) {
+              if (!videoWatchedRef.current) {
+                videoWatchedRef.current = true;
+                setVideoWatched(true);
+                markVideoAsWatched();
+              }
+            }
             // YT.PlayerState.PLAYING is 1
             if (event.data === window.YT.PlayerState.PLAYING) {
               interval = setInterval(() => {
@@ -96,7 +112,9 @@ export default function WatchVideoPage() {
                   const curr = player.getCurrentTime();
                   const dur = player.getDuration();
                   if (dur > 0) {
-                    if ((curr / dur) >= 0.8 && !videoWatched) {
+                    // Fallback watch verification for 99% completion
+                    if ((curr / dur) >= 0.99 && !videoWatchedRef.current) {
+                      videoWatchedRef.current = true;
                       setVideoWatched(true);
                       markVideoAsWatched();
                       clearInterval(interval);
@@ -131,7 +149,7 @@ export default function WatchVideoPage() {
         playerRef.current.destroy();
       }
     };
-  }, [story, videoWatched]);
+  }, [story]);
 
   if (loading) {
     return (
@@ -175,7 +193,7 @@ export default function WatchVideoPage() {
               <div className="flex items-center gap-2.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-primary animate-ping" />
                 <span className="text-xs font-bold text-slate-600 font-sans">
-                  Sistem pemantauan aktif. Menonton 80% dari durasi video akan menandai progress belajar Anda sebagai Selesai.
+                  Sistem pemantauan aktif. Menonton video hingga selesai akan menandai progress belajar Anda sebagai Selesai.
                 </span>
               </div>
 
@@ -186,7 +204,7 @@ export default function WatchVideoPage() {
                   </span>
                 ) : (
                   <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-xl font-sans">
-                    Tonton 80% untuk Selesai
+                    Tonton hingga selesai
                   </span>
                 )}
               </div>
