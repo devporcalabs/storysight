@@ -4,6 +4,39 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, BookOpen, CheckCircle2, Maximize2, Minimize2, Home } from "lucide-react";
 
+// Helper to convert Google Drive and GitHub links to embeddable / raw URLs
+function getEmbeddablePdfUrl(url) {
+  if (!url) return "";
+  
+  // 1. Google Drive Link
+  if (url.includes("drive.google.com")) {
+    const regExp = /\/file\/d\/([a-zA-Z0-9_-]+)/;
+    const match = url.match(regExp);
+    if (match && match[1]) {
+      return `https://drive.google.com/file/d/${match[1]}/preview`;
+    }
+    
+    try {
+      const urlObj = new URL(url);
+      const id = urlObj.searchParams.get("id");
+      if (id) {
+        return `https://drive.google.com/file/d/${id}/preview`;
+      }
+    } catch (e) {
+      console.error("Invalid URL format:", e);
+    }
+  }
+
+  // 2. GitHub Web link to Raw GitHub Link (e.g. github.com/.../blob/... -> raw.githubusercontent.com/.../...)
+  if (url.includes("github.com") && url.includes("/blob/")) {
+    return url
+      .replace("github.com", "raw.githubusercontent.com")
+      .replace("/blob/", "/");
+  }
+  
+  return url;
+}
+
 // Page component for individual PDF pages rendered on canvas
 function ComicPage({ pageNum, pdfDoc }) {
   const containerRef = useRef(null);
@@ -114,6 +147,8 @@ export default function ComicReaderPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   
+  const isGoogleDrive = story?.pdfUrl && story.pdfUrl.includes("drive.google.com");
+  
   const [readingProgress, setReadingProgress] = useState(0);
   const [showResumeToast, setShowResumeToast] = useState(false);
   const [resumePage, setResumePage] = useState(1);
@@ -166,9 +201,16 @@ export default function ComicReaderPage() {
   useEffect(() => {
     if (!pdfjsLoaded || !story) return;
 
+    if (story.pdfUrl && story.pdfUrl.includes("drive.google.com")) {
+      // For Google Drive, we bypass PDF.js rendering to prevent infinite load
+      setTotalPages(1);
+      return;
+    }
+
     const loadPdf = async () => {
       try {
-        const doc = await window.pdfjsLib.getDocument(story.pdfUrl).promise;
+        const transformedUrl = getEmbeddablePdfUrl(story.pdfUrl);
+        const doc = await window.pdfjsLib.getDocument(transformedUrl).promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
       } catch (error) {
@@ -368,13 +410,13 @@ export default function ComicReaderPage() {
             <div className="flex flex-col">
               <span className="font-extrabold text-xs md:text-sm text-primary font-display">{story.title}</span>
               <span className="text-[10px] md:text-xs text-zinc-400">
-                {totalPages > 0 ? `Halaman ${currentPage} / ${totalPages}` : "Memuat halaman..."}
+                {isGoogleDrive ? "Membaca Komik via Google Drive" : (totalPages > 0 ? `Halaman ${currentPage} / ${totalPages}` : "Memuat halaman...")}
               </span>
             </div>
           </div>
           
           {/* Mid control page selector */}
-          {totalPages > 0 && (
+          {totalPages > 0 && !isGoogleDrive && (
             <div className="flex items-center gap-2">
               <select
                 value={currentPage}
@@ -411,13 +453,22 @@ export default function ComicReaderPage() {
           id="comic-container"
           className="flex flex-col items-center w-full max-w-[900px] mx-auto shadow-2xl bg-black"
         >
-          {pdfDoc && pageNumbers.map((pageNum) => (
-            <ComicPage
-              key={pageNum}
-              pageNum={pageNum}
-              pdfDoc={pdfDoc}
-            />
-          ))}
+          {isGoogleDrive ? (
+            <div className="w-full aspect-[3/4] sm:aspect-[1/1.4] h-[80vh] min-h-[500px]">
+              <iframe
+                src={getEmbeddablePdfUrl(story.pdfUrl)}
+                className="w-full h-full border-none bg-white"
+              />
+            </div>
+          ) : (
+            pdfDoc && pageNumbers.map((pageNum) => (
+              <ComicPage
+                key={pageNum}
+                pageNum={pageNum}
+                pdfDoc={pdfDoc}
+              />
+            ))
+          )}
         </div>
 
         {/* End of story completed actions */}
