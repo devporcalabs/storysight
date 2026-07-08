@@ -38,6 +38,7 @@ async function main() {
       passwordHash: teacherPasswordHash,
       role: "TEACHER",
       school: "SMA Negeri 1 Jakarta",
+      class: "10-A",
     },
   });
 
@@ -48,6 +49,7 @@ async function main() {
       passwordHash: studentPasswordHash,
       role: "STUDENT",
       school: "SMA Negeri 1 Jakarta",
+      class: "10-A",
     },
   });
 

@@ -72,6 +72,7 @@ export async function GET(request, { params }) {
         isCorrect: uAns ? uAns.isCorrect : false,
         options: q.options,
         answers: q.answers,
+        imageUrl: q.imageUrl,
       };
     });
 

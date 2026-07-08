@@ -2,7 +2,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, UploadCloud, Check, AlertCircle, Plus, Trash } from "lucide-react";
+import { ArrowLeft, Save, UploadCloud, Check, AlertCircle, Plus, Trash, ArrowUp, ArrowDown, Edit } from "lucide-react";
 
 export default function EditStoryPage({ params }) {
   const router = useRouter();
@@ -35,6 +35,9 @@ export default function EditStoryPage({ params }) {
   const [questions, setQuestions] = useState([]);
   const [newQuestionText, setNewQuestionText] = useState("");
   const [newQuestionType, setNewQuestionType] = useState("MULTIPLE_CHOICE");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [newQuestionImageUrl, setNewQuestionImageUrl] = useState("");
+  const [uploadingQuestionImage, setUploadingQuestionImage] = useState(false);
 
   // Type specific temp states
   const [mcOptions, setMcOptions] = useState([
@@ -79,6 +82,7 @@ export default function EditStoryPage({ params }) {
               questionText: q.questionText,
               type: q.type,
               points: q.points || 10,
+              imageUrl: q.imageUrl || "",
             };
             if (q.type === "MULTIPLE_CHOICE") {
               payload.options = q.options.map((o) => ({
@@ -110,7 +114,7 @@ export default function EditStoryPage({ params }) {
     fetchStory();
   }, [id, router]);
 
-  const handleAddQuestion = () => {
+  const handleSaveQuestion = () => {
     if (!newQuestionText.trim()) {
       alert("Teks pertanyaan tidak boleh kosong!");
       return;
@@ -120,6 +124,7 @@ export default function EditStoryPage({ params }) {
       questionText: newQuestionText,
       type: newQuestionType,
       points: 10,
+      imageUrl: newQuestionImageUrl,
     };
 
     if (newQuestionType === "MULTIPLE_CHOICE") {
@@ -158,10 +163,18 @@ export default function EditStoryPage({ params }) {
       payload.meaning = flashcardMeaning.trim();
     }
 
-    setQuestions([...questions, payload]);
+    if (editingIndex !== null) {
+      const updated = [...questions];
+      updated[editingIndex] = payload;
+      setQuestions(updated);
+      setEditingIndex(null);
+    } else {
+      setQuestions([...questions, payload]);
+    }
     
     // Reset fields
     setNewQuestionText("");
+    setNewQuestionImageUrl("");
     setMcOptions([
       { text: "", isCorrect: false },
       { text: "", isCorrect: false }
@@ -175,8 +188,59 @@ export default function EditStoryPage({ params }) {
     setFlashcardMeaning("");
   };
 
+  const handleEditQuestionStart = (index) => {
+    const q = questions[index];
+    setEditingIndex(index);
+    setNewQuestionText(q.questionText);
+    setNewQuestionType(q.type);
+    setNewQuestionImageUrl(q.imageUrl || "");
+    
+    if (q.type === "MULTIPLE_CHOICE") {
+      setMcOptions(q.options.map(o => ({ text: o.optionText, isCorrect: o.isCorrect })));
+    } else if (q.type === "FILL_IN_THE_BLANK") {
+      setBlankAnswer(q.answer);
+    } else if (q.type === "MATCHING") {
+      setMatchingPairs(q.pairs.map(p => ({ key: p.key, val: p.val })));
+    } else if (q.type === "FLASHCARD") {
+      setFlashcardWord(q.word);
+      setFlashcardMeaning(q.meaning);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setNewQuestionText("");
+    setNewQuestionImageUrl("");
+    setMcOptions([
+      { text: "", isCorrect: false },
+      { text: "", isCorrect: false }
+    ]);
+    setBlankAnswer("");
+    setMatchingPairs([
+      { key: "", val: "" },
+      { key: "", val: "" }
+    ]);
+    setFlashcardWord("");
+    setFlashcardMeaning("");
+  };
+
+  const handleMoveQuestion = (index, direction) => {
+    const updated = [...questions];
+    if (direction === "up" && index > 0) {
+      [updated[index], updated[index - 1]] = [updated[index - 1], updated[index]];
+    } else if (direction === "down" && index < updated.length - 1) {
+      [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+    }
+    setQuestions(updated);
+  };
+
   const handleRemoveQuestion = (index) => {
     setQuestions(questions.filter((_, idx) => idx !== index));
+    if (editingIndex === index) {
+      handleCancelEdit();
+    } else if (editingIndex > index) {
+      setEditingIndex(editingIndex - 1);
+    }
   };
 
   const handleFileUpload = async (e, type, setUrl, setUploading) => {
@@ -498,19 +562,54 @@ export default function EditStoryPage({ params }) {
               <div className="space-y-2">
                 {questions.map((q, idx) => (
                   <div key={idx} className="flex justify-between items-center bg-slate-50/50 border border-slate-200/40 p-4 rounded-xl text-xs font-sans">
-                    <div>
-                      <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-mono text-[9px] uppercase tracking-wide mr-2 font-bold">
-                        {q.type}
-                      </span>
-                      <span className="font-bold text-slate-800">{q.questionText}</span>
+                    <div className="flex items-center gap-3">
+                      {/* Reordering controls */}
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => handleMoveQuestion(idx, "up")}
+                          className="p-1 hover:bg-slate-200/60 rounded disabled:opacity-30 cursor-pointer text-slate-500 transition"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === questions.length - 1}
+                          onClick={() => handleMoveQuestion(idx, "down")}
+                          className="p-1 hover:bg-slate-200/60 rounded disabled:opacity-30 cursor-pointer text-slate-500 transition"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {q.imageUrl && (
+                        <img src={q.imageUrl} alt="Kuis" className="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0" />
+                      )}
+
+                      <div>
+                        <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-mono text-[9px] uppercase tracking-wide mr-2 font-bold">
+                          {q.type}
+                        </span>
+                        <span className="font-bold text-slate-800">{q.questionText}</span>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveQuestion(idx)}
-                      className="text-rose-500 hover:underline font-bold text-[10px] cursor-pointer flex items-center gap-1"
-                    >
-                      <Trash className="w-3.5 h-3.5" /> Hapus
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleEditQuestionStart(idx)}
+                        className="text-amber-600 hover:underline font-bold text-[10px] cursor-pointer flex items-center gap-1 transition"
+                      >
+                        <Edit className="w-3.5 h-3.5" /> Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveQuestion(idx)}
+                        className="text-rose-500 hover:underline font-bold text-[10px] cursor-pointer flex items-center gap-1 transition"
+                      >
+                        <Trash className="w-3.5 h-3.5" /> Hapus
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -530,6 +629,37 @@ export default function EditStoryPage({ params }) {
                 placeholder="Tulis soal kuis di sini..."
                 className="w-full px-4 py-2.5 rounded-xl text-xs glass-input transition font-semibold font-sans"
               />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono mb-1">Gambar Soal (Opsional)</label>
+              <div className="flex items-center gap-3">
+                {newQuestionImageUrl ? (
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 shrink-0">
+                    <img src={newQuestionImageUrl} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setNewQuestionImageUrl("")}
+                      className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-center justify-center text-white text-[9px] font-bold transition duration-200 cursor-pointer"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-primary/40 rounded-xl p-4 cursor-pointer transition bg-white/40">
+                    <UploadCloud className="w-5 h-5 text-slate-400 mb-1" />
+                    <span className="text-[10px] font-bold text-slate-500">Unggah Gambar (JPG, PNG, WEBP)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, "quiz", setNewQuestionImageUrl, setUploadingQuestionImage)}
+                      className="hidden"
+                      disabled={uploadingQuestionImage}
+                    />
+                  </label>
+                )}
+                {uploadingQuestionImage && <div className="text-[10px] text-slate-400 font-bold animate-pulse">Mengunggah...</div>}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -674,13 +804,32 @@ export default function EditStoryPage({ params }) {
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={handleAddQuestion}
-              className="w-full py-2.5 bg-primary/10 border border-primary/20 text-primary font-bold text-xs rounded-xl hover:bg-primary hover:text-white transition cursor-pointer flex items-center justify-center gap-1 font-sans"
-            >
-              <Plus className="w-4 h-4" /> Tambahkan Pertanyaan ke List
-            </button>
+            {editingIndex !== null ? (
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleSaveQuestion}
+                  className="flex-1 py-2.5 bg-amber-500 text-white font-bold text-xs rounded-xl hover:bg-amber-600 transition cursor-pointer flex items-center justify-center gap-1 font-sans"
+                >
+                  <Save className="w-4 h-4" /> Simpan Perubahan Pertanyaan
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="py-2.5 px-4 bg-slate-200 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-300 transition cursor-pointer font-sans"
+                >
+                  Batal Edit
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSaveQuestion}
+                className="w-full py-2.5 bg-primary/10 border border-primary/20 text-primary font-bold text-xs rounded-xl hover:bg-primary hover:text-white transition cursor-pointer flex items-center justify-center gap-1 font-sans"
+              >
+                <Plus className="w-4 h-4" /> Tambahkan Pertanyaan ke List
+              </button>
+            )}
           </div>
         </div>
 

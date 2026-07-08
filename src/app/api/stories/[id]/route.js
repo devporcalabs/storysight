@@ -158,6 +158,7 @@ export async function PUT(request, { params }) {
               questionText: q.questionText,
               orderNumber: i + 1,
               points: q.points || 10,
+              imageUrl: q.imageUrl || null,
             }
           });
 

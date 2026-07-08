@@ -53,8 +53,12 @@ export default function DashboardLayout({ children }) {
         <aside className="hidden md:flex flex-col w-72 bg-white/40 backdrop-blur-xl border-r border-slate-200/40 h-screen sticky top-0 z-40 justify-between">
           <div className="flex-1 flex flex-col">
             <div className="px-8 py-8">
-              <Link href="/" className="font-display text-2xl font-extrabold text-primary tracking-tight">
-                StorySight
+              <Link href="/" className="flex items-center gap-2.5 group">
+                <img 
+                  src="/logo.png" 
+                  alt="StorySight Logo" 
+                  className="h-12 w-auto object-contain transition-transform group-hover:scale-105 duration-300"
+                />
               </Link>
             </div>
             

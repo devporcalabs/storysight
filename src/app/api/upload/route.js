@@ -39,11 +39,11 @@ export async function POST(request) {
         return NextResponse.json({ error: "Only .mp4, .mov, or .webm videos are allowed" }, { status: 400 });
       }
       subfolder = "videos";
-    } else if (type === "thumbnail") {
+    } else if (type === "thumbnail" || type === "quiz") {
       if (![".jpg", ".jpeg", ".png", ".webp"].includes(ext)) {
         return NextResponse.json({ error: "Only .jpg, .jpeg, .png, or .webp images are allowed" }, { status: 400 });
       }
-      subfolder = "thumbnails";
+      subfolder = type === "quiz" ? "quizzes" : "thumbnails";
     } else {
       return NextResponse.json({ error: "Invalid upload type" }, { status: 400 });
     }

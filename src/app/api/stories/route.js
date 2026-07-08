@@ -134,7 +134,8 @@ export async function POST(request) {
               type: q.type,
               questionText: q.questionText,
               orderNumber: i + 1,
-              points: 10,
+              points: q.points || 10,
+              imageUrl: q.imageUrl || null,
             }
           });
 

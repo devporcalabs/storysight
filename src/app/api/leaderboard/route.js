@@ -11,6 +11,7 @@ export async function GET() {
         id: true,
         name: true,
         school: true,
+        class: true,
         attempts: {
           select: {
             score: true,
@@ -29,6 +30,7 @@ export async function GET() {
           id: student.id,
           name: student.name,
           school: student.school || "Umum",
+          class: student.class || "",
           averageScore,
           attemptsCount,
         };

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
+import { normalizeClassName } from "@/lib/utils";
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, email, password, role, school } = body;
+    const { name, email, password, role, school, class: userClass } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -44,6 +45,13 @@ export async function POST(request) {
       );
     }
 
+    if (!userClass || typeof userClass !== "string" || userClass.trim() === "") {
+      return NextResponse.json(
+        { error: "Class is required" },
+        { status: 400 }
+      );
+    }
+
     const emailLower = email.toLowerCase();
 
     // Check if user already exists
@@ -67,6 +75,7 @@ export async function POST(request) {
         passwordHash,
         role: assignedRole,
         school: school.trim(),
+        class: normalizeClassName(userClass),
       },
     });
 
@@ -79,6 +88,7 @@ export async function POST(request) {
           email: user.email,
           role: user.role,
           school: user.school,
+          class: user.class,
         },
       },
       { status: 201 }

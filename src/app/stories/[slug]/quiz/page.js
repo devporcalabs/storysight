@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, AlertCircle, ArrowRight, HelpCircle, Check, FlipHorizontal } from "lucide-react";
@@ -210,11 +210,35 @@ export default function QuizPage() {
     }
   };
 
-  const getMatchingOptions = () => {
+  const matchingOptions = useMemo(() => {
+    if (!currentQuestion || currentQuestion.type !== "MATCHING") {
+      return { leftKeys: [], rightVals: [] };
+    }
     const leftKeys = currentQuestion.options.map(o => o.matchKey).filter(Boolean);
     const rightVals = currentQuestion.options.map(o => o.matchValue).filter(Boolean);
-    return { leftKeys, rightVals };
-  };
+
+    const shuffleArray = (arr) => {
+      if (arr.length <= 1) return arr;
+      let newArr;
+      let attempts = 0;
+      do {
+        newArr = [...arr];
+        for (let i = newArr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+        }
+        attempts++;
+      } while (attempts < 10 && newArr.every((val, index) => val === arr[index]));
+      return newArr;
+    };
+
+    return {
+      leftKeys: shuffleArray(leftKeys),
+      rightVals: shuffleArray(rightVals)
+    };
+  }, [currentQuestion?.id, currentQuestion?.options]);
+
+  const getMatchingOptions = () => matchingOptions;
 
   return (
     <div className="bg-surface mesh-gradient min-h-screen font-sans text-slate-800 flex flex-col justify-between">
@@ -242,6 +266,16 @@ export default function QuizPage() {
               {currentQuestion.questionText}
             </h2>
           </div>
+
+          {currentQuestion.imageUrl && (
+            <div className="w-full max-h-64 rounded-2xl overflow-hidden mb-6 border border-slate-200/50 bg-slate-100/50 flex items-center justify-center">
+              <img
+                src={currentQuestion.imageUrl}
+                alt="Pertanyaan Kuis"
+                className="max-h-64 object-contain"
+              />
+            </div>
+          )}
 
           <div className="mb-8 pt-6 border-t border-slate-200/40">
             {/* MULTIPLE CHOICE */}

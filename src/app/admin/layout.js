@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Shield, BookOpen, BarChart3, PlusCircle, LogOut, Users, Image, Settings } from "lucide-react";
+import { Shield, BookOpen, BarChart3, PlusCircle, LogOut, Users, Image, Settings, Compass } from "lucide-react";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -42,9 +42,11 @@ export default function AdminLayout({ children }) {
         <div className="flex-1 flex flex-col">
           {/* Brand */}
           <div className="p-6 border-b border-slate-200/40 flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-primary to-primary-container text-white p-2.5 rounded-xl">
-              <Shield className="w-5 h-5" />
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="StorySight Logo" 
+              className="h-12 w-auto object-contain"
+            />
             <div>
               <span className="font-display font-extrabold text-slate-800 tracking-tight text-base">Admin Panel</span>
               <span className="block text-[9px] text-slate-400 font-extrabold uppercase font-mono">StorySight V1 CMS</span>
@@ -63,6 +65,18 @@ export default function AdminLayout({ children }) {
             >
               <BarChart3 className="w-4 h-4" />
               Dashboard
+            </Link>
+
+            <Link
+              href="/stories"
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-display font-semibold transition-all ${
+                pathname === "/stories"
+                  ? "bg-primary/10 text-primary border-r-4 border-primary font-bold"
+                  : "text-slate-500 hover:bg-white/40 hover:text-primary"
+              }`}
+            >
+              <Compass className="w-4 h-4" />
+              Explore
             </Link>
             
             {session?.role === "SUPERADMIN" && (

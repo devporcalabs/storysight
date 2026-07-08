@@ -37,10 +37,12 @@ export default function Navbar() {
   return (
     <header className="glass-navbar sticky top-0 z-50 px-6 py-4 transition-all duration-300">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="font-display font-black text-2xl tracking-tight text-primary">
-            StorySight
-          </div>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <img 
+            src="/logo.png" 
+            alt="StorySight Logo" 
+            className="h-14 w-auto object-contain transition-transform group-hover:scale-105 duration-300"
+          />
         </Link>
 
         {/* Links section */}

@@ -28,7 +28,9 @@ export default function AdminUsersPage() {
   const [formPassword, setFormPassword] = useState("");
   const [formRole, setFormRole] = useState("STUDENT");
   const [formSchool, setFormSchool] = useState("");
+  const [formClass, setFormClass] = useState("");
   const [formExpiresAt, setFormExpiresAt] = useState("");
+  const [classFilter, setClassFilter] = useState("");
 
   // CSV Import state
   const [importFile, setImportFile] = useState(null);
@@ -65,6 +67,7 @@ export default function AdminUsersPage() {
       if (searchQuery) params.append("search", searchQuery);
       if (roleFilter) params.append("role", roleFilter);
       if (schoolFilter) params.append("school", schoolFilter);
+      if (classFilter) params.append("class", classFilter);
 
       const res = await fetch(`/api/admin/users?${params.toString()}`);
       if (res.ok) {
@@ -82,7 +85,7 @@ export default function AdminUsersPage() {
     if (session) {
       fetchUsers();
     }
-  }, [session, searchQuery, roleFilter, schoolFilter]);
+  }, [session, searchQuery, roleFilter, schoolFilter, classFilter]);
 
   // Open modals
   const handleOpenAddModal = () => {
@@ -91,6 +94,7 @@ export default function AdminUsersPage() {
     setFormPassword("");
     setFormRole("STUDENT");
     setFormSchool(session.role === "TEACHER" ? session.school : "");
+    setFormClass("");
     setFormExpiresAt("");
     setErrorMsg("");
     setSuccessMsg("");
@@ -104,6 +108,7 @@ export default function AdminUsersPage() {
     setFormPassword("");
     setFormRole(user.role);
     setFormSchool(user.school || "");
+    setFormClass(user.class || "");
     const formattedDate = user.expiresAt ? new Date(user.expiresAt).toISOString().split('T')[0] : "";
     setFormExpiresAt(formattedDate);
     setErrorMsg("");
@@ -133,6 +138,7 @@ export default function AdminUsersPage() {
           password: formPassword,
           role: session.role === "TEACHER" ? "STUDENT" : formRole,
           school: session.role === "TEACHER" ? session.school : formSchool,
+          class: formClass,
           expiresAt: formExpiresAt || null,
         }),
       });
@@ -171,6 +177,7 @@ export default function AdminUsersPage() {
           password: formPassword || undefined,
           role: session.role === "TEACHER" ? "STUDENT" : formRole,
           school: session.role === "TEACHER" ? session.school : formSchool,
+          class: formClass,
           expiresAt: formExpiresAt || null,
         }),
       });
@@ -214,24 +221,28 @@ export default function AdminUsersPage() {
     }
   };
 
-  // Export Student Data to CSV
-  const handleExportCSV = () => {
+  // Export Student Data to Excel-compatible CSV
+  const handleExportExcel = () => {
     const studentsToExport = users.filter(u => u.role === "STUDENT");
     if (studentsToExport.length === 0) {
       alert("Tidak ada data siswa untuk diekspor.");
       return;
     }
 
-    let csvContent = "\uFEFFname,email,role,school,createdAt\n"; // UTF-8 BOM for Excel compatibility
+    // sep=, tells Excel to use comma separator regardless of regional settings, \uFEFF is the UTF-8 BOM
+    let csvContent = "\uFEFFsep=,\nNama Lengkap,Email,Peran,Asal Sekolah,Kelas,Cerita Selesai,Rata-rata Skor Kuis,Tanggal Bergabung\n";
 
     studentsToExport.forEach(u => {
       const nameEscaped = `"${u.name.replace(/"/g, '""')}"`;
       const emailEscaped = `"${u.email.replace(/"/g, '""')}"`;
       const roleEscaped = `"${u.role.replace(/"/g, '""')}"`;
       const schoolEscaped = `"${(u.school || "").replace(/"/g, '""')}"`;
+      const classEscaped = `"${(u.class || "").replace(/"/g, '""')}"`;
+      const completedEscaped = `"${u.completedCount}"`;
+      const scoreEscaped = `"${u.attemptsCount > 0 ? u.averageScore + '%' : 'Belum Ujian'}"`;
       const dateEscaped = `"${new Date(u.createdAt).toLocaleDateString()}"`;
       
-      csvContent += `${nameEscaped},${emailEscaped},${roleEscaped},${schoolEscaped},${dateEscaped}\n`;
+      csvContent += `${nameEscaped},${emailEscaped},${roleEscaped},${schoolEscaped},${classEscaped},${completedEscaped},${scoreEscaped},${dateEscaped}\n`;
     });
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -271,6 +282,7 @@ export default function AdminUsersPage() {
       const emailIdx = headers.indexOf("email");
       const passwordIdx = headers.indexOf("password");
       const schoolIdx = headers.indexOf("school");
+      const classIdx = headers.indexOf("class");
 
       if (nameIdx === -1 || emailIdx === -1 || passwordIdx === -1) {
         setErrorMsg("Header CSV harus memiliki kolom: name, email, dan password.");
@@ -297,6 +309,7 @@ export default function AdminUsersPage() {
         const email = cells[emailIdx];
         const password = cells[passwordIdx];
         const school = schoolIdx !== -1 ? cells[schoolIdx] : "";
+        const classVal = classIdx !== -1 ? cells[classIdx] : "";
 
         if (!name || !email || !password) {
           errors.push(`Baris ${i + 2}: Kolom nama, email, atau password kosong.`);
@@ -314,6 +327,7 @@ export default function AdminUsersPage() {
               password,
               role: "STUDENT",
               school: session.role === "TEACHER" ? session.school : school,
+              class: classVal,
             }),
           });
 
@@ -346,6 +360,11 @@ export default function AdminUsersPage() {
   // Extract unique school list for Superadmin filter
   const schoolList = Array.from(
     new Set(users.map(u => u.school).filter(s => s !== null && s !== ""))
+  );
+
+  // Extract unique class list for filter
+  const classList = Array.from(
+    new Set(users.map(u => u.class).filter(c => c !== null && c !== ""))
   );
 
   // Render role badges
@@ -405,12 +424,12 @@ export default function AdminUsersPage() {
 
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             className="flex items-center justify-center gap-1.5 py-3 px-4 bg-white/60 border border-slate-200 text-slate-700 rounded-xl font-display text-xs font-bold shadow-sm hover:bg-slate-50 transition cursor-pointer"
-            title="Ekspor Data Siswa ke CSV"
+            title="Ekspor Data Siswa ke Excel"
           >
             <FileDown className="w-4 h-4 text-slate-500" />
-            Ekspor CSV
+            Ekspor Excel
           </button>
 
           <button
@@ -487,32 +506,45 @@ export default function AdminUsersPage() {
           />
         </div>
 
-        {/* Filters (Superadmin Only) */}
-        {session.role === "SUPERADMIN" && (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-4 py-2.5 rounded-xl text-xs glass-input font-semibold bg-white/40 border border-slate-200/40 text-slate-700 outline-none"
-            >
-              <option value="" className="bg-white">All Roles</option>
-              <option value="SUPERADMIN" className="bg-white">Super Admin</option>
-              <option value="TEACHER" className="bg-white">Teacher</option>
-              <option value="STUDENT" className="bg-white">Student</option>
-            </select>
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {session.role === "SUPERADMIN" && (
+            <>
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-4 py-2.5 rounded-xl text-xs glass-input font-semibold bg-white/40 border border-slate-200/40 text-slate-700 outline-none"
+              >
+                <option value="" className="bg-white">All Roles</option>
+                <option value="SUPERADMIN" className="bg-white">Super Admin</option>
+                <option value="TEACHER" className="bg-white">Teacher</option>
+                <option value="STUDENT" className="bg-white">Student</option>
+              </select>
 
-            <select
-              value={schoolFilter}
-              onChange={(e) => setSchoolFilter(e.target.value)}
-              className="px-4 py-2.5 rounded-xl text-xs glass-input font-semibold bg-white/40 border border-slate-200/40 text-slate-700 outline-none"
-            >
-              <option value="" className="bg-white">All Schools</option>
-              {schoolList.map(school => (
-                <option key={school} value={school} className="bg-white">{school}</option>
-              ))}
-            </select>
-          </div>
-        )}
+              <select
+                value={schoolFilter}
+                onChange={(e) => setSchoolFilter(e.target.value)}
+                className="px-4 py-2.5 rounded-xl text-xs glass-input font-semibold bg-white/40 border border-slate-200/40 text-slate-700 outline-none"
+              >
+                <option value="" className="bg-white">All Schools</option>
+                {schoolList.map(school => (
+                  <option key={school} value={school} className="bg-white">{school}</option>
+                ))}
+              </select>
+            </>
+          )}
+
+          <select
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value)}
+            className="px-4 py-2.5 rounded-xl text-xs glass-input font-semibold bg-white/40 border border-slate-200/40 text-slate-700 outline-none"
+          >
+            <option value="" className="bg-white">All Classes</option>
+            {classList.map(cls => (
+              <option key={cls} value={cls} className="bg-white">{cls}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Directory Table */}
@@ -524,6 +556,7 @@ export default function AdminUsersPage() {
                 <th className="py-3 px-4">Name / Email</th>
                 <th className="py-3 px-4">Role</th>
                 <th className="py-3 px-4">School Origin</th>
+                <th className="py-3 px-4">Class</th>
                 <th className="py-3 px-4">Completed Stories</th>
                 <th className="py-3 px-4">Quiz Avg. Score</th>
                 <th className="py-3 px-4">Joined Date</th>
@@ -533,13 +566,13 @@ export default function AdminUsersPage() {
             <tbody className="divide-y divide-slate-100/50 font-semibold text-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="py-12 text-center">
+                  <td colSpan="8" className="py-12 text-center">
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400 font-medium">
+                  <td colSpan="8" className="py-8 text-center text-slate-400 font-medium">
                     No users found matching parameters.
                   </td>
                 </tr>
@@ -575,6 +608,13 @@ export default function AdminUsersPage() {
                           <School className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{user.school}</span>
                         </div>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-4 font-sans">
+                      {user.class ? (
+                        <span className="text-slate-600">{user.class}</span>
                       ) : (
                         <span className="text-slate-400">—</span>
                       )}
@@ -736,16 +776,43 @@ export default function AdminUsersPage() {
                       />
                     </div>
                   </div>
+
+                  {formRole !== "SUPERADMIN" && (
+                    <div>
+                      <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">Class (Kelas)</label>
+                      <input
+                        type="text"
+                        required
+                        value={formClass}
+                        onChange={(e) => setFormClass(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl text-xs border border-slate-200 outline-none focus:border-primary transition font-semibold"
+                        placeholder="e.g. 10-A, XI IPA 1, etc."
+                      />
+                    </div>
+                  )}
                 </>
               )}
 
               {session.role === "TEACHER" && (
-                <div>
-                  <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">School (Automatic)</label>
-                  <div className="bg-slate-50 border border-slate-100 text-slate-500 rounded-xl px-4 py-2.5 text-xs font-semibold flex items-center gap-1.5">
-                    <School className="w-4 h-4 text-slate-400" /> {session.school}
+                <>
+                  <div>
+                    <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">School (Automatic)</label>
+                    <div className="bg-slate-50 border border-slate-100 text-slate-500 rounded-xl px-4 py-2.5 text-xs font-semibold flex items-center gap-1.5">
+                      <School className="w-4 h-4 text-slate-400" /> {session.school}
+                    </div>
                   </div>
-                </div>
+                  <div>
+                    <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">Class (Kelas)</label>
+                    <input
+                      type="text"
+                      required
+                      value={formClass}
+                      onChange={(e) => setFormClass(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl text-xs border border-slate-200 outline-none focus:border-primary transition font-semibold"
+                      placeholder="e.g. 10-A, XI IPA 1, etc."
+                    />
+                  </div>
+                </>
               )}
 
               <div>
@@ -879,16 +946,43 @@ export default function AdminUsersPage() {
                       />
                     </div>
                   </div>
+
+                  {formRole !== "SUPERADMIN" && (
+                    <div>
+                      <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">Class (Kelas)</label>
+                      <input
+                        type="text"
+                        required
+                        value={formClass}
+                        onChange={(e) => setFormClass(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl text-xs border border-slate-200 outline-none focus:border-primary transition font-semibold"
+                        placeholder="e.g. 10-A, XI IPA 1, etc."
+                      />
+                    </div>
+                  )}
                 </>
               )}
 
               {session.role === "TEACHER" && (
-                <div>
-                  <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">School (Automatic)</label>
-                  <div className="bg-slate-50 border border-slate-100 text-slate-500 rounded-xl px-4 py-2.5 text-xs font-semibold flex items-center gap-1.5">
-                    <School className="w-4 h-4 text-slate-400" /> {session.school}
+                <>
+                  <div>
+                    <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">School (Automatic)</label>
+                    <div className="bg-slate-50 border border-slate-100 text-slate-500 rounded-xl px-4 py-2.5 text-xs font-semibold flex items-center gap-1.5">
+                      <School className="w-4 h-4 text-slate-400" /> {session.school}
+                    </div>
                   </div>
-                </div>
+                  <div>
+                    <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5">Class (Kelas)</label>
+                    <input
+                      type="text"
+                      required
+                      value={formClass}
+                      onChange={(e) => setFormClass(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl text-xs border border-slate-200 outline-none focus:border-primary transition font-semibold"
+                      placeholder="e.g. 10-A, XI IPA 1, etc."
+                    />
+                  </div>
+                </>
               )}
 
               <div>

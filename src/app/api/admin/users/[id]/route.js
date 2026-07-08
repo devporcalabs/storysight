@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyToken, hashPassword } from "@/lib/auth";
+import { normalizeClassName } from "@/lib/utils";
 
 export async function PUT(request, { params }) {
   try {
@@ -28,7 +29,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const { name, email, password, role, school, expiresAt } = body;
+    const { name, email, password, role, school, class: userClass, expiresAt } = body;
 
     const data = {};
     if (name) data.name = name;
@@ -65,10 +66,16 @@ export async function PUT(request, { params }) {
       if (school !== undefined) {
         data.school = school && school.trim() !== "" ? school.trim() : null;
       }
+      if (userClass !== undefined) {
+        data.class = userClass && userClass.trim() !== "" ? normalizeClassName(userClass) : null;
+      }
     } else {
       // Teachers cannot change role or school
       data.role = "STUDENT";
       data.school = user.school;
+      if (userClass !== undefined) {
+        data.class = userClass && userClass.trim() !== "" ? normalizeClassName(userClass) : null;
+      }
     }
 
     const updatedUser = await prisma.user.update({
@@ -84,6 +91,7 @@ export async function PUT(request, { params }) {
         email: updatedUser.email,
         role: updatedUser.role,
         school: updatedUser.school,
+        class: updatedUser.class,
         expiresAt: updatedUser.expiresAt,
       },
     });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyToken, hashPassword } from "@/lib/auth";
+import { normalizeClassName } from "@/lib/utils";
 
 export async function GET(request) {
   try {
@@ -15,6 +16,8 @@ export async function GET(request) {
     const search = searchParams.get("search");
 
     let whereClause = {};
+
+    const classFilter = searchParams.get("class");
 
     if (user.role === "TEACHER") {
       // Teachers can only see students in their school
@@ -31,11 +34,16 @@ export async function GET(request) {
       if (schoolFilter) whereClause.school = schoolFilter;
     }
 
+    if (classFilter) {
+      whereClause.class = classFilter;
+    }
+
     if (search) {
       whereClause.OR = [
         { name: { contains: search } },
         { email: { contains: search } },
         { school: { contains: search } },
+        { class: { contains: search } },
       ];
     }
 
@@ -47,6 +55,7 @@ export async function GET(request) {
         email: true,
         role: true,
         school: true,
+        class: true,
         createdAt: true,
         expiresAt: true,
         progress: {
@@ -88,6 +97,7 @@ export async function GET(request) {
         email: u.email,
         role: u.role,
         school: u.school,
+        class: u.class,
         createdAt: u.createdAt,
         expiresAt: u.expiresAt,
         completedCount,
@@ -115,7 +125,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, email, password, role, school, expiresAt } = body;
+    const { name, email, password, role, school, class: userClass, expiresAt } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -144,15 +154,23 @@ export async function POST(request) {
       // Teachers can only create students in their own school
       targetRole = "STUDENT";
       targetSchool = user.school;
+      if (!userClass || userClass.trim() === "") {
+        return NextResponse.json({ error: "Class name is required for student" }, { status: 400 });
+      }
     } else {
       // Superadmin can create any role
       if (!["STUDENT", "TEACHER", "SUPERADMIN"].includes(targetRole)) {
         return NextResponse.json({ error: "Invalid role specified" }, { status: 400 });
       }
       
-      // If role is Student or Teacher, validate school
-      if (["STUDENT", "TEACHER"].includes(targetRole) && (!targetSchool || targetSchool.trim() === "")) {
-        return NextResponse.json({ error: "School name is required for student/teacher" }, { status: 400 });
+      // If role is Student or Teacher, validate school and class
+      if (["STUDENT", "TEACHER"].includes(targetRole)) {
+        if (!targetSchool || targetSchool.trim() === "") {
+          return NextResponse.json({ error: "School name is required for student/teacher" }, { status: 400 });
+        }
+        if (!userClass || userClass.trim() === "") {
+          return NextResponse.json({ error: "Class is required for student/teacher" }, { status: 400 });
+        }
       }
     }
 
@@ -164,6 +182,7 @@ export async function POST(request) {
         passwordHash,
         role: targetRole,
         school: targetSchool ? targetSchool.trim() : null,
+        class: userClass ? normalizeClassName(userClass) : null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
       },
     });
@@ -177,6 +196,7 @@ export async function POST(request) {
           email: createdUser.email,
           role: createdUser.role,
           school: createdUser.school,
+          class: createdUser.class,
           expiresAt: createdUser.expiresAt,
         },
       },

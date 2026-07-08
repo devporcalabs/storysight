@@ -470,7 +470,7 @@ export default function LandingPage() {
                               <td className="py-3.5 px-4 text-slate-600 font-sans">
                                 <div className="flex items-center gap-1.5">
                                   <School className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                  <span>{student.school}</span>
+                                  <span>{student.school} {student.class ? `(${student.class})` : ""}</span>
                                 </div>
                               </td>
                               <td className="py-3.5 px-4 text-center font-mono text-slate-500">
@@ -503,9 +503,31 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-slate-50 border-t border-slate-200/50 mt-12">
         <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex flex-col items-center md:items-start gap-1">
-            <div className="font-display font-black text-xl text-primary">StorySight</div>
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <img src="/logo.png" alt="StorySight Logo" className="h-11 w-auto object-contain" />
             <p className="text-[10px] text-slate-400 font-semibold">© 2026 StorySight. Bridging education and imagination.</p>
+            
+            {/* Collaboration block */}
+            <div className="mt-4 pt-4 border-t border-slate-200/40 w-full flex flex-col items-center md:items-start gap-2">
+              <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 font-mono">
+                In Collaboration With
+              </span>
+              <div className="flex items-center gap-4 mt-1">
+                <img 
+                  src="/logo-diu.jpeg" 
+                  alt="DIU UNY Logo" 
+                  className="h-8 w-auto object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300 rounded" 
+                />
+                <img 
+                  src="/logo-porcalabs.png" 
+                  alt="Porcalabs Indonesia Logo" 
+                  className="h-6 w-auto object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300" 
+                />
+              </div>
+              <p className="text-[9px] text-slate-400 font-medium">
+                DIU UNY dan Porcalabs Indonesia
+              </p>
+            </div>
           </div>
           <div className="flex flex-wrap justify-center gap-6 text-xs font-semibold text-slate-500">
             <Link href="/" className="hover:text-primary transition-colors">Terms of Service</Link>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { comparePassword, hashPassword, signToken, verifyToken } from "@/lib/auth";
+import { normalizeClassName } from "@/lib/utils";
 
 export async function GET(request) {
   try {
@@ -20,6 +21,7 @@ export async function GET(request) {
         email: true,
         role: true,
         school: true,
+        class: true,
         expiresAt: true,
       },
     });
@@ -40,6 +42,7 @@ export async function GET(request) {
         email: user.email,
         role: user.role,
         school: user.school,
+        class: user.class,
       },
     });
   } catch (error) {
@@ -57,7 +60,7 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
-    const { name, school, oldPassword, newPassword } = body;
+    const { name, school, class: userClass, oldPassword, newPassword } = body;
 
     const userDb = await prisma.user.findUnique({
       where: { id: user.id },
@@ -69,7 +72,8 @@ export async function PUT(request) {
 
     const updateData = {};
     if (name) updateData.name = name.trim();
-    if (school !== undefined) updateData.school = school.trim();
+    if (school !== undefined) updateData.school = school ? school.trim() : null;
+    if (userClass !== undefined) updateData.class = userClass ? normalizeClassName(userClass) : null;
 
     // Handle password update
     if (oldPassword && newPassword) {
@@ -95,6 +99,7 @@ export async function PUT(request) {
       email: updatedUser.email,
       role: updatedUser.role,
       school: updatedUser.school,
+      class: updatedUser.class,
     });
 
     const response = NextResponse.json({
@@ -105,6 +110,7 @@ export async function PUT(request) {
         email: updatedUser.email,
         role: updatedUser.role,
         school: updatedUser.school,
+        class: updatedUser.class,
       },
     });
 

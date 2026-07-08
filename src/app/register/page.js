@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { normalizeClassName } from "@/lib/utils";
 import Link from "next/link";
 import { BookOpen, UserPlus, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -11,6 +12,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("STUDENT");
   const [school, setSchool] = useState("");
+  const [userClass, setUserClass] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -24,7 +26,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role, school }),
+        body: JSON.stringify({ name, email, password, role, school, class: normalizeClassName(userClass) }),
       });
 
       const data = await res.json();
@@ -151,6 +153,20 @@ export default function RegisterPage() {
                 onChange={(e) => setSchool(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl text-sm glass-input transition font-semibold"
                 placeholder="e.g. SMA Negeri 1 Jakarta"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Class (Kelas)
+              </label>
+              <input
+                type="text"
+                required
+                value={userClass}
+                onChange={(e) => setUserClass(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl text-sm glass-input transition font-semibold"
+                placeholder="e.g. 10-A, XI IPA 1, dsb."
               />
             </div>
 

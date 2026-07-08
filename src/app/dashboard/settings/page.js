@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { normalizeClassName } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowLeft, Save, Shield, User, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 
@@ -14,6 +15,7 @@ export default function UserSettingsPage() {
   // Form states
   const [name, setName] = useState("");
   const [school, setSchool] = useState("");
+  const [userClass, setUserClass] = useState("");
   
   // Password states
   const [oldPassword, setOldPassword] = useState("");
@@ -38,6 +40,7 @@ export default function UserSettingsPage() {
             setUser(data.user);
             setName(data.user.name || "");
             setSchool(data.user.school || "");
+            setUserClass(data.user.class || "");
           } else {
             router.push("/login");
           }
@@ -65,6 +68,7 @@ export default function UserSettingsPage() {
         body: JSON.stringify({
           name,
           school,
+          class: normalizeClassName(userClass),
         }),
       });
 
@@ -230,18 +234,33 @@ export default function UserSettingsPage() {
 
                 {/* School (Conditional for students and teachers) */}
                 {user?.role !== "SUPERADMIN" && (
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-2">
-                      Asal Sekolah / Instansi
-                    </label>
-                    <input
-                      type="text"
-                      value={school}
-                      onChange={(e) => setSchool(e.target.value)}
-                      placeholder="e.g. SMA Negeri 1 Jakarta"
-                      className="w-full px-4 py-3 rounded-xl text-xs glass-input transition font-semibold"
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-2">
+                        Asal Sekolah / Instansi
+                      </label>
+                      <input
+                        type="text"
+                        value={school}
+                        onChange={(e) => setSchool(e.target.value)}
+                        placeholder="e.g. SMA Negeri 1 Jakarta"
+                        className="w-full px-4 py-3 rounded-xl text-xs glass-input transition font-semibold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono mb-2">
+                        Kelas
+                      </label>
+                      <input
+                        type="text"
+                        value={userClass}
+                        onChange={(e) => setUserClass(e.target.value)}
+                        placeholder="e.g. 10-A, XI IPA 1, dsb."
+                        className="w-full px-4 py-3 rounded-xl text-xs glass-input transition font-semibold"
+                      />
+                    </div>
+                  </>
                 )}
 
                 {/* Role (Readonly badge) */}

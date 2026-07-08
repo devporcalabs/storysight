@@ -142,6 +142,12 @@ export default function QuizResultPage() {
                   {item.questionText}
                 </h4>
 
+                {item.imageUrl && (
+                  <div className="w-full max-w-xs rounded-xl overflow-hidden mb-4 border border-slate-200 bg-slate-50">
+                    <img src={item.imageUrl} alt="Kuis" className="max-h-40 object-contain w-full" />
+                  </div>
+                )}
+
                 {/* Show details depending on question types */}
                 <div className="space-y-2 text-xs">
                   {/* Correct / Incorrect indicator */}
