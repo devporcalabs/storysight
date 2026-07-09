@@ -42,8 +42,8 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
-        <div className="glass-card p-6 flex flex-col justify-between">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+        <div className="bg-white rounded-[20px] border border-slate-100/80 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wide">Total Students</span>
           <div className="flex items-end justify-between mt-4">
             <span className="text-3xl font-display font-black text-slate-800">{data?.totalUsers || 0}</span>
@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="glass-card p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-[20px] border border-slate-100/80 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wide">Stories Catalog</span>
           <div className="flex items-end justify-between mt-4">
             <span className="text-3xl font-display font-black text-slate-800">{data?.totalStories || 0}</span>
@@ -63,7 +63,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="glass-card p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-[20px] border border-slate-100/80 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wide">Quiz Submissions</span>
           <div className="flex items-end justify-between mt-4">
             <span className="text-3xl font-display font-black text-slate-800">{data?.totalAttempts || 0}</span>
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="glass-card p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-[20px] border border-slate-100/80 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wide">Average Score</span>
           <div className="flex items-end justify-between mt-4">
             <span className="text-3xl font-display font-black text-slate-800">{data?.avgScore || 0}%</span>
@@ -83,7 +83,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="glass-card p-6 flex flex-col justify-between col-span-2 lg:col-span-1">
+        <div className="bg-white rounded-[20px] border border-slate-100/80 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between col-span-2 md:col-span-1 lg:col-span-1">
           <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wide">Completion Rate</span>
           <div className="flex items-end justify-between mt-4">
             <span className="text-3xl font-display font-black text-slate-800">{data?.completionRate || 0}%</span>
@@ -95,7 +95,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* User Register List */}
-      <div className="glass-card p-6 overflow-hidden">
+      <div className="bg-white rounded-[24px] border border-slate-100/80 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] overflow-hidden">
         <h2 className="text-lg font-display font-bold text-slate-800 tracking-tight mb-6">Student Activity Register</h2>
         
         <div className="overflow-x-auto">

@@ -48,6 +48,39 @@ export default function QuizPage() {
     fetchStoryAndQuiz();
   }, [slug]);
 
+  const currentQuestion = questions[currentIdx];
+  const isLastQuestion = currentIdx === questions.length - 1;
+
+  const matchingOptions = useMemo(() => {
+    if (!currentQuestion || currentQuestion.type !== "MATCHING") {
+      return { leftKeys: [], rightVals: [] };
+    }
+    const leftKeys = currentQuestion.options ? currentQuestion.options.map(o => o.matchKey).filter(Boolean) : [];
+    const rightVals = currentQuestion.options ? currentQuestion.options.map(o => o.matchValue).filter(Boolean) : [];
+
+    const shuffleArray = (arr) => {
+      if (arr.length <= 1) return arr;
+      let newArr;
+      let attempts = 0;
+      do {
+        newArr = [...arr];
+        for (let i = newArr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [newArr[j], newArr[i]] = [newArr[i], newArr[j]];
+        }
+        attempts++;
+      } while (attempts < 10 && newArr.every((val, index) => val === arr[index]));
+      return newArr;
+    };
+
+    return {
+      leftKeys: shuffleArray(leftKeys),
+      rightVals: shuffleArray(rightVals)
+    };
+  }, [currentQuestion?.id, currentQuestion?.options]);
+
+  const getMatchingOptions = () => matchingOptions;
+
   if (loading) {
     return (
       <>
@@ -73,9 +106,6 @@ export default function QuizPage() {
       </>
     );
   }
-
-  const currentQuestion = questions[currentIdx];
-  const isLastQuestion = currentIdx === questions.length - 1;
 
   const saveAnswer = (val) => {
     setAnswers((prev) => ({
@@ -210,35 +240,7 @@ export default function QuizPage() {
     }
   };
 
-  const matchingOptions = useMemo(() => {
-    if (!currentQuestion || currentQuestion.type !== "MATCHING") {
-      return { leftKeys: [], rightVals: [] };
-    }
-    const leftKeys = currentQuestion.options.map(o => o.matchKey).filter(Boolean);
-    const rightVals = currentQuestion.options.map(o => o.matchValue).filter(Boolean);
 
-    const shuffleArray = (arr) => {
-      if (arr.length <= 1) return arr;
-      let newArr;
-      let attempts = 0;
-      do {
-        newArr = [...arr];
-        for (let i = newArr.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-        }
-        attempts++;
-      } while (attempts < 10 && newArr.every((val, index) => val === arr[index]));
-      return newArr;
-    };
-
-    return {
-      leftKeys: shuffleArray(leftKeys),
-      rightVals: shuffleArray(rightVals)
-    };
-  }, [currentQuestion?.id, currentQuestion?.options]);
-
-  const getMatchingOptions = () => matchingOptions;
 
   return (
     <div className="bg-surface mesh-gradient min-h-screen font-sans text-slate-800 flex flex-col justify-between">

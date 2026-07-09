@@ -117,7 +117,7 @@ export default function DashboardLayout({ children }) {
         </aside>
 
         {/* Main Content Pane */}
-        <main className="flex-1 px-6 md:px-12 pt-10 pb-24 md:py-10 max-w-[1400px] overflow-y-auto">
+        <main className="flex-1 px-3 sm:px-6 md:px-12 pt-6 pb-24 md:py-10 max-w-[1400px] overflow-x-hidden">
           {children}
         </main>
       </div>

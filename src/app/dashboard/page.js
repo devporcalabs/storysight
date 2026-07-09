@@ -75,12 +75,14 @@ export default function StudentDashboard() {
       {/* Dashboard Header */}
       <header>
         <p className="font-display text-xs font-bold text-primary/80 tracking-widest uppercase mb-1">{greeting}</p>
-        <h2 className="font-display text-3xl font-black text-slate-800">Selamat Datang Kembali, {session?.name}</h2>
+        <h2 className="font-display text-2xl sm:text-3xl font-black text-slate-800">
+          Selamat Datang Kembali, {session?.name?.split(' ')[0]}
+        </h2>
         <p className="text-sm font-semibold text-slate-500 mt-2">Mari kita lanjutkan petualangan bahasamu hari ini.</p>
       </header>
 
       {/* Row 1: 3 Columns of Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
         {/* Column 1: Weekly Goals */}
         <div className="glass-panel p-6 rounded-3xl relative overflow-hidden flex flex-col justify-between">
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
@@ -195,7 +197,7 @@ export default function StudentDashboard() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {stats?.inProgressStories.map((story) => (
               <div
                 key={story.id}

@@ -58,7 +58,7 @@ export default function StoryDetailPage() {
   return (
     <div className="bg-surface mesh-gradient min-h-screen font-sans text-slate-800 flex flex-col">
       <Navbar />
-      <main className="max-w-[1200px] mx-auto px-6 pt-8 pb-20 w-full flex-1">
+      <main className="max-w-[1200px] mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-20 w-full flex-1 overflow-x-hidden">
         
         {/* Back Link */}
         <div className="w-full mb-6">
@@ -120,7 +120,7 @@ export default function StoryDetailPage() {
             {/* Title & Metadata */}
             <div>
               <span className="text-[10px] font-black text-primary tracking-widest uppercase font-mono">English Learning Story</span>
-              <h1 className="font-display text-3xl md:text-4xl font-black text-slate-800 mt-2 leading-tight">{story.title}</h1>
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-black text-slate-800 mt-2 leading-tight">{story.title}</h1>
               <div className="flex items-center gap-4 mt-3 text-slate-400 text-xs font-semibold font-sans">
                 <span>Durasi: {Math.round(story.duration / 60)} menit</span>
                 <span>&bull;</span>

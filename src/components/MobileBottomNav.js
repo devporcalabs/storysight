@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Compass, CheckCircle2, Settings, LogOut } from "lucide-react";
+import { Compass, CheckCircle2, Settings, LogOut, LogIn, UserPlus, Mic } from "lucide-react";
 
 export default function MobileBottomNav() {
   const router = useRouter();
@@ -40,12 +40,11 @@ export default function MobileBottomNav() {
     router.refresh();
   };
 
-  // Do not render bottom nav if loading or not authenticated
-  if (loading || !session) return null;
+  // Do not render bottom nav while loading
+  if (loading) return null;
 
   // Do not render bottom nav on specific focus/distraction-free pages
   const hideOnPaths = [
-    "/",
     "/login",
     "/register",
   ];
@@ -60,49 +59,95 @@ export default function MobileBottomNav() {
     return null;
   }
 
-  // Determine URLs based on role
-  const isAdmin = session.role === "SUPERADMIN" || session.role === "TEACHER";
-  const dashboardUrl = isAdmin ? "/admin/dashboard" : "/dashboard";
-  const settingsUrl = isAdmin ? "/admin/settings" : "/dashboard/settings";
+  // Authenticated state navigation
+  if (session) {
+    const isAdmin = session.role === "SUPERADMIN" || session.role === "TEACHER";
+    const dashboardUrl = isAdmin ? "/admin/dashboard" : "/dashboard";
+    const settingsUrl = isAdmin ? "/admin/settings" : "/dashboard/settings";
 
-  // Check active states
-  const isExploreActive = pathname === "/stories" || pathname.startsWith("/stories/");
-  const isDashboardActive = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
-  const isSettingsActive = pathname === "/dashboard/settings" || pathname === "/admin/settings";
+    const isExploreActive = pathname === "/" || pathname.startsWith("/stories/");
+    const isDashboardActive = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+    const isSettingsActive = pathname === "/dashboard/settings" || pathname === "/admin/settings";
 
+    return (
+      <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 h-[72px] bg-white/80 backdrop-blur-xl border border-slate-200/40 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-around px-2 z-50">
+        <Link 
+          href="/" 
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${isExploreActive ? "text-primary font-bold" : "text-[#64748B]"}`}
+        >
+          <Compass className="w-5 h-5" />
+          <span className="text-[9px]">Explore</span>
+        </Link>
+        
+        <Link 
+          href="/practice" 
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${pathname === "/practice" ? "text-primary font-bold" : "text-[#64748B]"}`}
+        >
+          <Mic className="w-5 h-5" />
+          <span className="text-[9px]">Speech</span>
+        </Link>
+
+        <Link 
+          href={dashboardUrl} 
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${isDashboardActive && !isSettingsActive ? "text-primary font-bold" : "text-[#64748B]"}`}
+        >
+          <CheckCircle2 className="w-5 h-5" />
+          <span className="text-[9px]">Dashboard</span>
+        </Link>
+        
+        <Link 
+          href={settingsUrl} 
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${isSettingsActive ? "text-primary font-bold" : "text-[#64748B]"}`}
+        >
+          <Settings className="w-5 h-5" />
+          <span className="text-[9px]">Settings</span>
+        </Link>
+        
+        <button 
+          onClick={handleLogout} 
+          className="flex flex-col items-center justify-center gap-1 w-14 h-12 text-rose-500 font-semibold cursor-pointer active:scale-90 transition-all duration-200"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="text-[9px]">Keluar</span>
+        </button>
+      </nav>
+    );
+  }
+
+  // Guest (Not authenticated) state navigation
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 glass-panel bg-white/90 backdrop-blur-2xl z-50 border-t border-slate-200/30 py-3.5 flex justify-around px-4 pb-safe shadow-lg">
+    <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 h-[72px] bg-white/80 backdrop-blur-xl border border-slate-200/40 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-around px-4 z-50">
       <Link 
-        href="/stories" 
-        className={`flex flex-col items-center gap-1 transition ${isExploreActive ? "text-primary font-bold" : "text-slate-400"}`}
+        href="/" 
+        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/" ? "text-primary font-bold" : "text-[#64748B]"}`}
       >
         <Compass className="w-5 h-5" />
-        <span className="text-[9px]">Explore</span>
+        <span className="text-[9px]">Jelajah</span>
+      </Link>
+
+      <Link 
+        href="/practice" 
+        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/practice" ? "text-primary font-bold" : "text-[#64748B]"}`}
+      >
+        <Mic className="w-5 h-5" />
+        <span className="text-[9px]">Speech</span>
       </Link>
       
       <Link 
-        href={dashboardUrl} 
-        className={`flex flex-col items-center gap-1 transition ${isDashboardActive && !isSettingsActive ? "text-primary font-bold active-dot relative" : "text-slate-400"}`}
+        href="/login" 
+        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/login" ? "text-primary font-bold" : "text-[#64748B]"}`}
       >
-        <CheckCircle2 className="w-5 h-5" />
-        <span className="text-[9px]">Dashboard</span>
+        <LogIn className="w-5 h-5" />
+        <span className="text-[9px]">Masuk</span>
       </Link>
-      
+
       <Link 
-        href={settingsUrl} 
-        className={`flex flex-col items-center gap-1 transition ${isSettingsActive ? "text-primary font-bold active-dot relative" : "text-slate-400"}`}
+        href="/register" 
+        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/register" ? "text-primary font-bold" : "text-[#64748B]"}`}
       >
-        <Settings className="w-5 h-5" />
-        <span className="text-[9px]">Settings</span>
+        <UserPlus className="w-5 h-5" />
+        <span className="text-[9px]">Daftar</span>
       </Link>
-      
-      <button 
-        onClick={handleLogout} 
-        className="flex flex-col items-center gap-1 text-rose-500 font-semibold cursor-pointer"
-      >
-        <LogOut className="w-5 h-5" />
-        <span className="text-[9px]">Keluar</span>
-      </button>
     </nav>
   );
 }

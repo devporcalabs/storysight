@@ -1,14 +1,15 @@
-import { Sora, Inter, JetBrains_Mono } from "next/font/google";
+import { Fredoka, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
-const sora = Sora({
-  variable: "--font-sora",
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const jakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta-sans",
   subsets: ["latin"],
 });
 
@@ -22,11 +23,17 @@ export const metadata = {
   description: "Tingkatkan kemampuan bahasa Anda dengan pengalaman belajar multisensori. Mulai dari PDF interaktif, video sinematik, hingga kuis yang menantang.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="id"
-      className={`${sora.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${fredoka.variable} ${jakartaSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans text-slate-800">
         {children}
