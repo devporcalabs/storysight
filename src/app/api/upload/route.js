@@ -49,11 +49,11 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid upload type" }, { status: 400 });
     }
 
-    // Size limits: Max 10MB for PDFs, Max 100MB for videos, Max 1MB for images
+    // Size limits: Max 15MB for PDFs, Max 100MB for videos, Max 1MB for images
     const sizeInMB = file.size / (1024 * 1024);
     let maxSize = 1;
     if (type === "pdf") {
-      maxSize = 10;
+      maxSize = 15;
     } else if (type === "video") {
       maxSize = 100;
     }

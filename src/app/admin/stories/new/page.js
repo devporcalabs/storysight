@@ -181,6 +181,24 @@ export default function NewStoryPage() {
     if (!file) return;
 
     setError("");
+
+    // Client-side file size validation
+    const sizeInMB = file.size / (1024 * 1024);
+    let maxSize = 1;
+    if (type === "pdf") {
+      maxSize = 15;
+    } else if (type === "video") {
+      maxSize = 100;
+    }
+
+    if (sizeInMB > maxSize) {
+      const errorMsg = `File size exceeds the limit. Maximum allowed size for ${type === "pdf" ? "PDF" : type} is ${maxSize}MB.`;
+      alert(errorMsg);
+      setError(errorMsg);
+      e.target.value = ""; // Reset file input
+      return;
+    }
+
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
