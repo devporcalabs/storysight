@@ -32,7 +32,7 @@ export default function StudentDashboard() {
         if (Array.isArray(storiesData)) {
           const completedIds = statsData.completedStories?.map(s => s.id) || [];
           const activeIds = statsData.inProgressStories?.map(s => s.id) || [];
-          const recs = storiesData.filter(s => !completedIds.includes(s.id) && !activeIds.includes(s.id));
+          const recs = storiesData.filter(s => s.status === "Published" && !completedIds.includes(s.id) && !activeIds.includes(s.id));
           setRecommendations(recs.slice(0, 4));
         }
       } catch (e) {
@@ -205,15 +205,11 @@ export default function StudentDashboard() {
               >
                 <div className="relative aspect-video w-full bg-slate-100 flex items-center justify-center">
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent z-10"></div>
-                  {story.slug === "the-golden-key" ? (
-                    <img
-                      src="/uploads/thumbnails/golden-key.png"
-                      alt="Legenda Penjaga Rimba"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <BookOpen className="w-12 h-12 text-slate-300" />
-                  )}
+                  <img
+                    src={story.thumbnailUrl}
+                    alt={story.title}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute bottom-4 left-4 z-20">
                     <span className="px-2 py-1 bg-white/20 backdrop-blur-md rounded-md text-[9px] font-bold text-white uppercase tracking-wider">
                       {story.level}
@@ -263,15 +259,11 @@ export default function StudentDashboard() {
             {recommendations.map((story) => (
               <div key={story.id} className="glass-panel p-4 rounded-3xl hover:glow-edge transition-all duration-300 flex flex-col justify-between">
                 <div className="aspect-video w-full rounded-2xl overflow-hidden mb-4 relative group bg-slate-100 flex items-center justify-center">
-                  {story.slug === "the-golden-key" ? (
-                    <img
-                      src="/uploads/thumbnails/golden-key.png"
-                      alt="The Golden Key"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <BookOpen className="w-12 h-12 text-slate-300" />
-                  )}
+                  <img
+                    src={story.thumbnailUrl}
+                    alt={story.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                   <div className="absolute top-2 right-2 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[9px] font-bold text-primary shadow-sm">BARU</div>
                 </div>
                 

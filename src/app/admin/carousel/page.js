@@ -192,7 +192,7 @@ export default function AdminCarouselPage() {
               {/* Image Upload */}
               <div className="space-y-2">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
-                  Banner Cover Image (Wide, e.g. 16:9 or 21:9)
+                  Banner Cover Image (WebP only, Max 1MB)
                 </label>
                 {imageUrl ? (
                   <div className="space-y-2">
@@ -208,14 +208,14 @@ export default function AdminCarouselPage() {
                   <div className="relative">
                     <input
                       type="file"
-                      accept=".jpg,.jpeg,.png,.webp"
+                      accept=".webp"
                       onChange={handleFileUpload}
                       disabled={uploading}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
                     <div className="border-2 border-dashed border-slate-200/60 hover:border-primary hover:bg-primary/5 p-6 rounded-xl flex flex-col items-center justify-center gap-1.5 text-slate-400 text-xs font-semibold transition">
                       <UploadCloud className="w-6 h-6 text-primary" />
-                      <span>{uploading ? "Uploading..." : "Choose Banner Image"}</span>
+                      <span>{uploading ? "Uploading..." : "Choose Banner Image (WebP)"}</span>
                       <span className="text-[9px] text-slate-400">Dimensi lebar direkomendasikan</span>
                     </div>
                   </div>

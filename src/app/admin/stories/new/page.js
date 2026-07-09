@@ -412,7 +412,7 @@ export default function NewStoryPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Thumbnail Image</label>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">JPG, PNG, WebP (Max 1MB)</span>
+                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">WebP only (Max 1MB)</span>
               </div>
               <div className="md:col-span-2">
                 {thumbnailUrl ? (
@@ -425,14 +425,14 @@ export default function NewStoryPage() {
                   <div className="relative">
                     <input
                       type="file"
-                      accept=".jpg,.jpeg,.png,.webp"
+                      accept=".webp"
                       onChange={(e) => handleFileUpload(e, "thumbnail", setThumbnailUrl, setUploadingThumbnail)}
                       disabled={uploadingThumbnail}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
                     <div className="border-2 border-dashed border-slate-200/60 hover:border-primary hover:bg-primary/5 p-4 rounded-xl flex items-center justify-center gap-2 text-slate-400 text-xs font-semibold transition">
                       <UploadCloud className="w-4 h-4 text-primary" />
-                      <span>{uploadingThumbnail ? "Uploading..." : "Choose Thumbnail"}</span>
+                      <span>{uploadingThumbnail ? "Uploading..." : "Choose Thumbnail (WebP)"}</span>
                     </div>
                   </div>
                 )}
@@ -442,18 +442,46 @@ export default function NewStoryPage() {
             {/* PDF Link */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-t border-slate-200/40 pt-6">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Story PDF Link / Google Drive Link</label>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Masukkan link PDF (e.g. Google Drive Link atau Direct PDF URL)</span>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Story PDF File / Link</label>
+                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Unggah file PDF (Max 10MB) atau masukkan URL PDF</span>
               </div>
-              <div className="md:col-span-2">
-                <input
-                  type="text"
-                  required
-                  value={pdfUrl}
-                  onChange={(e) => setPdfUrl(e.target.value)}
-                  placeholder="e.g. https://drive.google.com/file/d/.../view"
-                  className="w-full px-4 py-3 rounded-xl text-xs glass-input transition font-semibold"
-                />
+              <div className="md:col-span-2 space-y-3">
+                {pdfUrl ? (
+                  <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200/50 p-3 rounded-xl font-sans">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span className="text-xs font-semibold text-emerald-800 truncate">{pdfUrl}</span>
+                    <button type="button" onClick={() => setPdfUrl("")} className="text-[10px] text-rose-500 font-bold ml-auto hover:underline cursor-pointer">Remove</button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {/* File Upload */}
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) => handleFileUpload(e, "pdf", setPdfUrl, setUploadingPdf)}
+                        disabled={uploadingPdf}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <div className="border-2 border-dashed border-slate-200/60 hover:border-primary hover:bg-primary/5 p-4 rounded-xl flex items-center justify-center gap-2 text-slate-400 text-xs font-semibold transition">
+                        <UploadCloud className="w-4 h-4 text-primary" />
+                        <span>{uploadingPdf ? "Uploading PDF..." : "Choose PDF File"}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Manual Link Input */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-slate-400 font-mono shrink-0">ATAU MASUKKAN LINK:</span>
+                      <input
+                        type="text"
+                        value={pdfUrl}
+                        onChange={(e) => setPdfUrl(e.target.value)}
+                        placeholder="e.g. https://drive.google.com/file/d/.../view"
+                        className="flex-1 px-4 py-2.5 rounded-xl text-xs glass-input transition font-semibold"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -574,10 +602,10 @@ export default function NewStoryPage() {
                 ) : (
                   <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-primary/40 rounded-xl p-4 cursor-pointer transition bg-white/40">
                     <UploadCloud className="w-5 h-5 text-slate-400 mb-1" />
-                    <span className="text-[10px] font-bold text-slate-500">Unggah Gambar (JPG, PNG, WEBP)</span>
+                    <span className="text-[10px] font-bold text-slate-500">Unggah Gambar (WebP only, Max 1MB)</span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept=".webp"
                       onChange={(e) => handleFileUpload(e, "quiz", setNewQuestionImageUrl, setUploadingQuestionImage)}
                       className="hidden"
                       disabled={uploadingQuestionImage}

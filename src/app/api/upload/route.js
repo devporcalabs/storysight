@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { verifyToken } from "@/lib/auth";
+import { uploadToR2, isR2Configured } from "@/lib/r2";
 
 export async function POST(request) {
   try {
@@ -40,22 +41,58 @@ export async function POST(request) {
       }
       subfolder = "videos";
     } else if (type === "thumbnail" || type === "quiz") {
-      if (![".jpg", ".jpeg", ".png", ".webp"].includes(ext)) {
-        return NextResponse.json({ error: "Only .jpg, .jpeg, .png, or .webp images are allowed" }, { status: 400 });
+      if (ext !== ".webp") {
+        return NextResponse.json({ error: "Only .webp images are allowed" }, { status: 400 });
       }
       subfolder = type === "quiz" ? "quizzes" : "thumbnails";
     } else {
       return NextResponse.json({ error: "Invalid upload type" }, { status: 400 });
     }
 
-    // Size limits: Max 1MB for all files
+    // Size limits: Max 10MB for PDFs, Max 100MB for videos, Max 1MB for images
     const sizeInMB = file.size / (1024 * 1024);
-    if (sizeInMB > 1) {
-      return NextResponse.json({ error: "File must be smaller than 1MB" }, { status: 400 });
+    let maxSize = 1;
+    if (type === "pdf") {
+      maxSize = 10;
+    } else if (type === "video") {
+      maxSize = 100;
+    }
+
+    if (sizeInMB > maxSize) {
+      return NextResponse.json({ error: `File must be smaller than ${maxSize}MB` }, { status: 400 });
     }
 
     // Generate unique file name
     const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+
+    // Upload to Cloudflare R2 if configured
+    if (isR2Configured) {
+      const key = `uploads/${subfolder}/${uniqueName}`;
+      
+      // Determine Content-Type header for S3
+      let contentType = file.type;
+      if (!contentType) {
+        if (ext === ".pdf") contentType = "application/pdf";
+        else if (ext === ".jpg" || ext === ".jpeg") contentType = "image/jpeg";
+        else if (ext === ".png") contentType = "image/png";
+        else if (ext === ".webp") contentType = "image/webp";
+        else if (ext === ".mp4") contentType = "video/mp4";
+        else if (ext === ".webm") contentType = "video/webm";
+        else if (ext === ".mov") contentType = "video/quicktime";
+        else contentType = "application/octet-stream";
+      }
+
+      console.log(`Uploading file ${originalName} to R2 with key: ${key} and type: ${contentType}`);
+      const publicUrl = await uploadToR2(buffer, key, contentType);
+
+      return NextResponse.json({
+        message: "Uploaded successfully to Cloudflare R2",
+        url: publicUrl,
+      });
+    }
+
+    // Fallback: Local filesystem upload
+    console.log(`R2 is not fully configured. Falling back to local storage for ${originalName}`);
     const targetDir = path.join(process.cwd(), "public", "uploads", subfolder);
     
     // Create folders
@@ -66,11 +103,12 @@ export async function POST(request) {
 
     const relativeUrl = `/uploads/${subfolder}/${uniqueName}`;
     return NextResponse.json({
-      message: "Uploaded successfully",
+      message: "Uploaded successfully to local storage",
       url: relativeUrl,
     });
   } catch (error) {
-    console.error("Local Upload Error:", error);
+    console.error("Upload Error:", error);
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
   }
 }
+

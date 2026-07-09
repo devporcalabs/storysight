@@ -13,7 +13,12 @@ export async function GET(request) {
 
     // Progress list with stories
     const progressList = await prisma.userStoryProgress.findMany({
-      where: { userId: user.id },
+      where: { 
+        userId: user.id,
+        story: {
+          status: "Published"
+        }
+      },
       include: {
         story: true
       }
@@ -55,6 +60,7 @@ export async function GET(request) {
         title: p.story.title,
         slug: p.story.slug,
         description: p.story.description,
+        thumbnailUrl: p.story.thumbnailUrl,
         level: p.story.level,
         genre: p.story.genre,
         duration: p.story.duration,
