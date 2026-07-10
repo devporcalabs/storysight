@@ -181,7 +181,7 @@ export default function StudentDashboard() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h3 className="font-display text-lg font-bold text-slate-800">Lanjutkan Membaca</h3>
-          <Link href="/stories" className="text-primary font-display text-xs font-bold hover:underline">
+          <Link href="/" className="text-primary font-display text-xs font-bold hover:underline">
             Lihat Semua Cerita
           </Link>
         </div>
@@ -190,7 +190,7 @@ export default function StudentDashboard() {
           <div className="glass-panel p-12 text-center rounded-3xl flex flex-col items-center justify-center h-48">
             <p className="text-slate-400 text-xs font-semibold">Tidak ada cerita aktif saat ini.</p>
             <Link
-              href="/stories"
+              href="/"
               className="mt-4 px-5 py-2.5 bg-primary text-white rounded-full font-display text-xs font-bold hover:shadow-md transition"
             >
               Mulai Membaca Cerita

@@ -29,7 +29,7 @@ export default function QuizPage() {
       try {
         const res = await fetch(`/api/stories/${slug}`);
         if (!res.ok) {
-          router.push("/stories");
+          router.push("/");
           return;
         }
         const data = await res.json();

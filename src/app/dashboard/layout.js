@@ -64,7 +64,7 @@ export default function DashboardLayout({ children }) {
             
             <nav className="px-6 space-y-2">
               <Link
-                href="/stories"
+                href="/"
                 className="flex items-center gap-4 py-3 px-4 rounded-xl transition-all text-slate-500 hover:bg-white/40 hover:text-primary font-display text-sm font-semibold"
               >
                 <Compass className="w-5 h-5" />

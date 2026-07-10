@@ -117,7 +117,7 @@ export default function QuizResultPage() {
               </Link>
             ) : (
               <Link
-                href="/stories"
+                href="/"
                 className="flex items-center justify-center gap-1.5 py-3 px-4 rounded-xl primary-gradient text-white hover:shadow-lg text-xs font-black shadow-md transition cursor-pointer"
               >
                 Story List <ArrowRight className="w-4 h-4" />

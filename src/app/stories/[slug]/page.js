@@ -16,14 +16,14 @@ export default function StoryDetailPage() {
       try {
         const res = await fetch(`/api/stories/${slug}`);
         if (!res.ok) {
-          router.push("/stories");
+          router.push("/");
           return;
         }
         const data = await res.json();
         setStory(data);
       } catch (e) {
         console.error(e);
-        router.push("/stories");
+        router.push("/");
       } finally {
         setLoading(false);
       }
@@ -63,7 +63,7 @@ export default function StoryDetailPage() {
         {/* Back Link */}
         <div className="w-full mb-6">
           <Link
-            href="/stories"
+            href="/"
             className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />

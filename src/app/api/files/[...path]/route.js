@@ -4,20 +4,25 @@ import { getFileFromR2, isR2Configured } from "@/lib/r2";
 
 export async function GET(request, { params }) {
   try {
-    // Authorization check — any logged-in user can access files
-    const token = request.cookies.get("session")?.value;
-    const user = token ? await verifyToken(token) : null;
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     // Build the R2 key from the URL path segments
-    const { path } = await params;
-    if (!path || path.length === 0) {
+    const { path: pathSegments } = await params;
+    if (!pathSegments || pathSegments.length === 0) {
       return NextResponse.json({ error: "File path is required" }, { status: 400 });
     }
 
-    const key = path.join("/");
+    const key = pathSegments.join("/");
+
+    // Determine if the file is public (e.g. thumbnails)
+    const isPublic = key.startsWith("uploads/thumbnails/");
+
+    if (!isPublic) {
+      // Authorization check — other files (PDFs, videos) require login
+      const token = request.cookies.get("session")?.value;
+      const user = token ? await verifyToken(token) : null;
+      if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+    }
 
     if (!isR2Configured) {
       return NextResponse.json({ error: "Storage not configured" }, { status: 503 });
