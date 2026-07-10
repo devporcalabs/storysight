@@ -46,7 +46,6 @@ export default function MobileBottomNav() {
   // Do not render bottom nav on specific focus/distraction-free pages
   const hideOnPaths = [
     "/login",
-    "/register",
   ];
   
   if (
@@ -139,14 +138,6 @@ export default function MobileBottomNav() {
       >
         <LogIn className="w-5 h-5" />
         <span className="text-[9px]">Masuk</span>
-      </Link>
-
-      <Link 
-        href="/register" 
-        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/register" ? "text-primary font-bold" : "text-[#64748B]"}`}
-      >
-        <UserPlus className="w-5 h-5" />
-        <span className="text-[9px]">Daftar</span>
       </Link>
     </nav>
   );

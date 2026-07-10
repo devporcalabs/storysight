@@ -118,16 +118,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-8 pt-6 border-t border-slate-200/40 text-center">
-            <span className="text-xs text-slate-500 font-semibold">
-              New to StorySight?{" "}
+            <span className="text-xs text-slate-500 font-semibold leading-relaxed block">
+              New to StorySight? Contact your teacher or administrator to get an account.
             </span>
-            <Link
-              href="/register"
-              className="text-xs font-bold text-primary hover:text-primary-container inline-flex items-center gap-0.5 group transition"
-            >
-              Create an account
-              <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
           </div>
         </div>
       </div>

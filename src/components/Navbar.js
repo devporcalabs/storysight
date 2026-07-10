@@ -128,27 +128,20 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                {/* Desktop Login Button */}
                 <Link
                   href="/login"
-                  className="hidden md:inline-flex text-xs font-bold text-slate-500 hover:text-primary px-2 sm:px-3 py-2 transition"
+                  className="hidden md:inline-flex primary-gradient text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs font-bold hover:shadow-lg transition cursor-pointer whitespace-nowrap"
                 >
                   Masuk
                 </Link>
                 
-                {/* Clean Mobile Login button */}
+                {/* Mobile Login button */}
                 <Link
                   href="/login"
                   className="inline-flex md:hidden text-[11px] font-bold text-primary bg-primary/10 border border-primary/20 px-3.5 py-1.5 rounded-full transition active:scale-[0.97]"
                 >
                   Masuk
-                </Link>
-
-                <Link
-                  href="/register"
-                  className="hidden md:inline-flex primary-gradient text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs font-bold hover:shadow-lg transition cursor-pointer whitespace-nowrap"
-                >
-                  <span className="hidden sm:inline">Mulai Belajar</span>
-                  <span className="sm:hidden">Daftar</span>
                 </Link>
               </>
             )}
@@ -217,19 +210,9 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className={`text-sm font-bold tracking-wide transition-all px-4 py-2.5 rounded-xl ${
-                    pathname === "/login"
-                      ? "bg-primary/10 text-primary shadow-inner"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                  }`}
-                >
-                  Masuk
-                </Link>
-                <Link
-                  href="/register"
                   className="primary-gradient text-white text-center text-sm font-bold px-4 py-2.5 rounded-xl hover:shadow-lg transition cursor-pointer mt-2"
                 >
-                  Mulai Belajar
+                  Masuk
                 </Link>
               </>
             )}
