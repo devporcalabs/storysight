@@ -782,7 +782,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Right side: List */}
-                  <div className="flex flex-col gap-3 z-10 w-full min-w-0">
+                  <div className="z-10 w-full min-w-0">
                     {leaderboard.length === 0 ? (
                       <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center backdrop-blur-sm">
                         <p className="text-[#C9C4E6] text-sm font-semibold">
@@ -790,39 +790,42 @@ export default function LandingPage() {
                         </p>
                       </div>
                     ) : (
-                      leaderboard.slice(0, 3).map((student, index) => {
-                        const rank = index + 1;
-                        const isFirst = rank === 1;
-                        return (
-                          <div key={student.id} className={`w-full min-w-0 flex items-center gap-2 sm:gap-4 p-3 sm:px-5 sm:py-4 rounded-2xl border transition-all duration-300 hover:bg-white/10 backdrop-blur-md ${isFirst ? 'bg-white/10 border-[#FFE9A8]/30 shadow-[0_4px_24px_-8px_rgba(46,42,92,0.5)]' : 'bg-white/5 border-white/10'}`}>
-                            {/* Medal/Rank */}
-                            <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-black text-sm shadow-inner ${
-                              rank === 1 ? 'bg-gradient-to-br from-[#FFE9A8] to-[#FFB938] text-[#7A5200] shadow-[#FFD66B]/50' : 
-                              rank === 2 ? 'bg-white/20 text-white border border-white/10' : 
-                              'bg-white/10 text-[#C9C4E6] border border-white/5'
-                            }`}>
-                              {rank === 1 ? '🥇' : rank}
-                            </div>
-                            
-                            {/* Student Info */}
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-white font-bold text-sm sm:text-base truncate">{student.name}</h4>
-                              <p className="text-[#C9C4E6] text-[10px] sm:text-xs truncate">{student.school} {student.class ? `(${student.class})` : ""}</p>
-                            </div>
-                            
-                            {/* Stats */}
-                            <div className="flex items-center gap-4 text-right shrink-0">
-                              <div className="hidden sm:block">
-                                <span className="block text-white font-black text-sm">{student.attemptsCount || 0}</span>
-                                <span className="block text-[#C9C4E6] text-[10px]">kuis selesai</span>
+                      <div className="max-h-[480px] overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-white/5">
+                        {leaderboard.slice(0, 10).map((student, index) => {
+                          const rank = index + 1;
+                          const isFirst = rank === 1;
+                          return (
+                            <div key={student.id} className={`w-full min-w-0 flex items-center gap-2 sm:gap-4 p-3 sm:px-5 sm:py-4 rounded-2xl border transition-all duration-300 hover:bg-white/10 backdrop-blur-md ${isFirst ? 'bg-white/10 border-[#FFE9A8]/30 shadow-[0_4px_24px_-8px_rgba(46,42,92,0.5)]' : 'bg-white/5 border-white/10'}`}>
+                              {/* Medal/Rank */}
+                              <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-black text-sm shadow-inner ${
+                                rank === 1 ? 'bg-gradient-to-br from-[#FFE9A8] to-[#FFB938] text-[#7A5200] shadow-[#FFD66B]/50' : 
+                                rank === 2 ? 'bg-[#C0C0C0] text-slate-800' : 
+                                rank === 3 ? 'bg-[#CD7F32] text-amber-950' : 
+                                'bg-white/10 text-[#C9C4E6] border border-white/5'
+                              }`}>
+                                {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
                               </div>
-                              <div className="bg-[#4CB963]/20 border border-[#4CB963]/30 text-[#8FE6A1] font-black text-sm px-3.5 py-1.5 rounded-xl shadow-inner min-w-[3.5rem] text-center">
-                                {Math.round(student.averageScore)}%
+                              
+                              {/* Student Info */}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-white font-bold text-sm sm:text-base truncate">{student.name}</h4>
+                                <p className="text-[#C9C4E6] text-[10px] sm:text-xs truncate">{student.school} {student.class ? `(${student.class})` : ""}</p>
+                              </div>
+                              
+                              {/* Stats */}
+                              <div className="flex items-center gap-4 text-right shrink-0">
+                                <div className="hidden sm:block">
+                                  <span className="block text-white font-black text-sm">{student.attemptsCount || 0}</span>
+                                  <span className="block text-[#C9C4E6] text-[10px]">kuis selesai</span>
+                                </div>
+                                <div className="bg-[#4CB963]/20 border border-[#4CB963]/30 text-[#8FE6A1] font-black text-sm px-3.5 py-1.5 rounded-xl shadow-inner min-w-[3.5rem] text-center">
+                                  {Math.round(student.averageScore)}%
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1114,45 +1117,48 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-2">
+                  <div>
                     {leaderboard.length === 0 ? (
                       <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
                         <p className="text-[#C9C4E6] text-xs font-semibold">Belum ada data peringkat.</p>
                       </div>
                     ) : (
-                      leaderboard.slice(0, 3).map((student, index) => {
-                        const rank = index + 1;
-                        const isFirst = rank === 1;
-                        return (
-                          <div
-                            key={student.id}
-                            className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
-                              isFirst
-                                ? "bg-white/10 border-[#FFE9A8]/30 shadow-md"
-                                : "bg-white/5 border-white/10"
-                            }`}
-                          >
-                            <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-black text-xs shadow-inner ${
-                              rank === 1 ? 'bg-gradient-to-br from-[#FFE9A8] to-[#FFB938] text-[#7A5200]' : 
-                              rank === 2 ? 'bg-white/20 text-white' : 
-                              'bg-white/10 text-[#C9C4E6]'
-                            }`}>
-                              {rank === 1 ? '🥇' : rank}
+                      <div className="max-h-[350px] overflow-y-auto pr-1 space-y-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-white/5">
+                        {leaderboard.slice(0, 10).map((student, index) => {
+                          const rank = index + 1;
+                          const isFirst = rank === 1;
+                          return (
+                            <div
+                              key={student.id}
+                              className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
+                                isFirst
+                                  ? "bg-white/10 border-[#FFE9A8]/30 shadow-md"
+                                  : "bg-white/5 border-white/10"
+                              }`}
+                            >
+                              <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-black text-xs shadow-inner ${
+                                rank === 1 ? 'bg-gradient-to-br from-[#FFE9A8] to-[#FFB938] text-[#7A5200]' : 
+                                rank === 2 ? 'bg-[#C0C0C0] text-slate-800' : 
+                                rank === 3 ? 'bg-[#CD7F32] text-amber-950' : 
+                                'bg-white/10 text-[#C9C4E6]'
+                              }`}>
+                                {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
+                              </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-white font-bold text-xs truncate">{student.name}</h4>
+                                <p className="text-[#C9C4E6] text-[10px] truncate">
+                                  {student.school} {student.class ? `(${student.class})` : ""}
+                                </p>
+                              </div>
+                              
+                              <div className="bg-[#4CB963]/20 border border-[#4CB963]/30 text-[#8FE6A1] font-black text-xs px-2.5 py-1 rounded-lg">
+                                {Math.round(student.averageScore)}%
+                              </div>
                             </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-white font-bold text-xs truncate">{student.name}</h4>
-                              <p className="text-[#C9C4E6] text-[10px] truncate">
-                                {student.school} {student.class ? `(${student.class})` : ""}
-                              </p>
-                            </div>
-                            
-                            <div className="bg-[#4CB963]/20 border border-[#4CB963]/30 text-[#8FE6A1] font-black text-xs px-2.5 py-1 rounded-lg">
-                              {Math.round(student.averageScore)}%
-                            </div>
-                          </div>
-                        );
-                      })
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
 
