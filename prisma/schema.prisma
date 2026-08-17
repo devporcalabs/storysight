@@ -20,6 +20,7 @@ model User {
   updatedAt    DateTime            @updatedAt
   progress     UserStoryProgress[]
   attempts     QuizAttempt[]
+  confirmedOrders CourseOrder[]    @relation("ConfirmedOrders")
 }
 
 model Story {
@@ -144,4 +145,90 @@ model CarouselBanner {
   order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id               String                  @id @default(uuid())
+  title            String
+  slug             String                  @unique
+  thumbnailUrl     String
+  shortDescription String
+  description      String
+  mentorName       String
+  mentorPhotoUrl   String
+  mentorBio        String
+  price            Int
+  discountPrice    Int?
+  startDate        DateTime
+  endDate          DateTime
+  duration         String
+  quota            Int
+  whatsappGroupUrl String
+  status           String                  @default("DRAFT") // "DRAFT", "PUBLISHED", "CLOSED"
+  isFeatured       Boolean                 @default(false)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  learningOutcomes CourseLearningOutcome[]
+  benefits         CourseBenefit[]
+  orders           CourseOrder[]
+}
+
+model CourseLearningOutcome {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title     String
+  sortOrder Int      @default(0)
+}
+
+model CourseBenefit {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title     String
+  sortOrder Int      @default(0)
+}
+
+model CourseOrder {
+  id                           String         @id @default(uuid())
+  orderCode                    String         @unique // Format: EC-YYMMDD-XXXX
+  courseId                     String
+  course                       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  fullName                     String
+  email                        String
+  whatsapp                     String
+  originalPrice                Int
+  discountAmount               Int            @default(0)
+  totalAmount                  Int
+  paymentMethodId              String?
+  paymentMethod                PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  paymentStatus                String         @default("UNPAID") // "UNPAID", "WAITING_CONFIRMATION", "PAID", "CANCELLED"
+  whatsappConfirmationClickedAt DateTime?
+  confirmedAt                  DateTime?
+  confirmedById                String?
+  confirmedBy                  User?          @relation("ConfirmedOrders", fields: [confirmedById], references: [id], onDelete: SetNull)
+  cancelledAt                  DateTime?
+  createdAt                    DateTime       @default(now())
+  updatedAt                    DateTime       @updatedAt
+}
+
+model PaymentMethod {
+  id            String        @id @default(uuid())
+  type          String        // "BANK_TRANSFER" or "QRIS"
+  bankName      String?
+  accountNumber String?
+  accountHolder String?
+  qrisImageUrl  String?
+  merchantName  String?
+  isActive      Boolean       @default(true)
+  sortOrder     Int           @default(0)
+  orders        CourseOrder[]
+}
+
+model ECourseSetting {
+  id               String   @id @default(uuid())
+  whatsappAdmin    String
+  whatsappTemplate String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Compass, CheckCircle2, Settings, LogOut, LogIn, UserPlus, Mic } from "lucide-react";
+import { Compass, CheckCircle2, Settings, LogOut, LogIn, UserPlus, Mic, BookOpen } from "lucide-react";
 
 export default function MobileBottomNav() {
   const router = useRouter();
@@ -72,7 +72,7 @@ export default function MobileBottomNav() {
       <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 h-[72px] bg-white/80 backdrop-blur-xl border border-slate-200/40 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-around px-2 z-50">
         <Link 
           href="/" 
-          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${isExploreActive ? "text-primary font-bold" : "text-[#64748B]"}`}
+          className={`flex flex-col items-center justify-center gap-1 w-11 h-12 transition-all duration-200 active:scale-90 ${isExploreActive ? "text-primary font-bold" : "text-[#64748B]"}`}
         >
           <Compass className="w-5 h-5" />
           <span className="text-[9px]">Explore</span>
@@ -80,15 +80,23 @@ export default function MobileBottomNav() {
         
         <Link 
           href="/practice" 
-          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${pathname === "/practice" ? "text-primary font-bold" : "text-[#64748B]"}`}
+          className={`flex flex-col items-center justify-center gap-1 w-11 h-12 transition-all duration-200 active:scale-90 ${pathname === "/practice" ? "text-primary font-bold" : "text-[#64748B]"}`}
         >
           <Mic className="w-5 h-5" />
           <span className="text-[9px]">Speech</span>
         </Link>
 
         <Link 
+          href="/courses" 
+          className={`flex flex-col items-center justify-center gap-1 w-11 h-12 transition-all duration-200 active:scale-90 ${pathname.startsWith("/courses") ? "text-primary font-bold" : "text-[#64748B]"}`}
+        >
+          <BookOpen className="w-5 h-5" />
+          <span className="text-[9px]">E-Course</span>
+        </Link>
+
+        <Link 
           href={dashboardUrl} 
-          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${isDashboardActive && !isSettingsActive ? "text-primary font-bold" : "text-[#64748B]"}`}
+          className={`flex flex-col items-center justify-center gap-1 w-11 h-12 transition-all duration-200 active:scale-90 ${isDashboardActive && !isSettingsActive ? "text-primary font-bold" : "text-[#64748B]"}`}
         >
           <CheckCircle2 className="w-5 h-5" />
           <span className="text-[9px]">Dashboard</span>
@@ -96,7 +104,7 @@ export default function MobileBottomNav() {
         
         <Link 
           href={settingsUrl} 
-          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${isSettingsActive ? "text-primary font-bold" : "text-[#64748B]"}`}
+          className={`flex flex-col items-center justify-center gap-1 w-11 h-12 transition-all duration-200 active:scale-90 ${isSettingsActive ? "text-primary font-bold" : "text-[#64748B]"}`}
         >
           <Settings className="w-5 h-5" />
           <span className="text-[9px]">Settings</span>
@@ -104,7 +112,7 @@ export default function MobileBottomNav() {
         
         <button 
           onClick={handleLogout} 
-          className="flex flex-col items-center justify-center gap-1 w-14 h-12 text-rose-500 font-semibold cursor-pointer active:scale-90 transition-all duration-200"
+          className="flex flex-col items-center justify-center gap-1 w-11 h-12 text-rose-500 font-semibold cursor-pointer active:scale-90 transition-all duration-200"
         >
           <LogOut className="w-5 h-5" />
           <span className="text-[9px]">Keluar</span>
@@ -118,7 +126,7 @@ export default function MobileBottomNav() {
     <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 h-[72px] bg-white/80 backdrop-blur-xl border border-slate-200/40 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-around px-4 z-50">
       <Link 
         href="/" 
-        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/" ? "text-primary font-bold" : "text-[#64748B]"}`}
+        className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${pathname === "/" ? "text-primary font-bold" : "text-[#64748B]"}`}
       >
         <Compass className="w-5 h-5" />
         <span className="text-[9px]">Jelajah</span>
@@ -126,15 +134,23 @@ export default function MobileBottomNav() {
 
       <Link 
         href="/practice" 
-        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/practice" ? "text-primary font-bold" : "text-[#64748B]"}`}
+        className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${pathname === "/practice" ? "text-primary font-bold" : "text-[#64748B]"}`}
       >
         <Mic className="w-5 h-5" />
         <span className="text-[9px]">Speech</span>
       </Link>
+
+      <Link 
+        href="/courses" 
+        className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${pathname.startsWith("/courses") ? "text-primary font-bold" : "text-[#64748B]"}`}
+      >
+        <BookOpen className="w-5 h-5" />
+        <span className="text-[9px]">E-Course</span>
+      </Link>
       
       <Link 
         href="/login" 
-        className={`flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-200 active:scale-90 ${pathname === "/login" ? "text-primary font-bold" : "text-[#64748B]"}`}
+        className={`flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-200 active:scale-90 ${pathname === "/login" ? "text-primary font-bold" : "text-[#64748B]"}`}
       >
         <LogIn className="w-5 h-5" />
         <span className="text-[9px]">Masuk</span>

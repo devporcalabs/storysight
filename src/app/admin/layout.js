@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Shield, BookOpen, BarChart3, PlusCircle, LogOut, Users, Image, Settings, Compass, Menu, X } from "lucide-react";
+import { Shield, BookOpen, BarChart3, PlusCircle, LogOut, Users, Image, Settings, Compass, Menu, X, GraduationCap } from "lucide-react";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -118,6 +118,17 @@ export default function AdminLayout({ children }) {
             >
               <Users className="w-4 h-4" />
               {session.role === "SUPERADMIN" ? "Manage Users" : "My Students"}
+            </Link>
+            <Link
+              href="/admin/ecourse"
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-display font-semibold transition-all ${
+                pathname.startsWith("/admin/ecourse")
+                  ? "bg-primary/10 text-primary border-r-4 border-primary font-bold shadow-inner"
+                  : "text-slate-500 hover:bg-white/40 hover:text-primary"
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              E-Course
             </Link>
             <Link
               href="/admin/settings"

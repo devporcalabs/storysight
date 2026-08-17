@@ -77,6 +77,17 @@ export default function Navbar() {
                 Speech
               </Link>
               
+              <Link
+                href="/courses"
+                className={`text-sm font-bold tracking-wide transition-all px-4 py-2 rounded-full ${
+                  pathname.startsWith("/courses")
+                    ? "bg-primary/10 text-primary shadow-inner"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                }`}
+              >
+                E-Course
+              </Link>
+              
               {session && (
                 <Link
                   href={(session.role === "SUPERADMIN" || session.role === "TEACHER") ? "/admin/dashboard" : "/dashboard"}
@@ -169,6 +180,17 @@ export default function Navbar() {
               }`}
             >
               Explore
+            </Link>
+            
+            <Link
+              href="/courses"
+              className={`text-sm font-bold tracking-wide transition-all px-4 py-2.5 rounded-xl ${
+                pathname.startsWith("/courses")
+                  ? "bg-primary/10 text-primary shadow-inner"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              E-Course
             </Link>
             
             {session ? (
